@@ -1,14 +1,12 @@
-package kanbanCore.entity;
+package ru.yandex.practicum.kanbanCore.entity;
 
 import java.util.ArrayList;
 
 public class Epic extends Task {
-
     private ArrayList<Subtask> subtasks = new ArrayList<>();
 
     public Epic(int id, Status status, String description, String name) {
         super(id, status, description, name);
-
     }
 
     public ArrayList<Subtask> getSubtasks() {
@@ -31,4 +29,3 @@ public class Epic extends Task {
                 "} ";
     }
 }
-
