@@ -135,28 +135,34 @@ public class Manager {
     public void updateEpic(Epic updatedEpic) {
         if (updatedEpic != null) {
             Epic originalEpic = findEpicById(updatedEpic.getId());
-            originalEpic.setDescription(updatedEpic.getDescription());
-            originalEpic.setName(updatedEpic.getName());
-            originalEpic.setSubtasks(updatedEpic.getSubtasks());
-            updateEpicStatus(updatedEpic);
-        } else {
-            System.out.println("Эпик не найден.");
+            if (originalEpic != null) {
+                originalEpic.setDescription(updatedEpic.getDescription());
+                originalEpic.setName(updatedEpic.getName());
+                originalEpic.setSubtasks(updatedEpic.getSubtasks());
+                updateEpicStatus(updatedEpic);
+            } else {
+                System.out.println("Эпик не найден.");
+            }
         }
     }
 
     public void updateSubtask(Subtask updatedSubtask) {
-        Subtask originalSubtask = findSubtaskById(updatedSubtask.getId());
-        originalSubtask.setDescription(updatedSubtask.getDescription());
-        originalSubtask.setName(updatedSubtask.getName());
-        if (updatedSubtask.getEpicId() != originalSubtask.getEpicId()) {
-            Epic updatedEpic = findEpicById(updatedSubtask.getEpicId());
-            Epic originalEpic = findEpicById(originalSubtask.getEpicId());
-            originalEpic.getSubtasks().removeIf(i -> i.getId() == originalSubtask.getId());
-            originalSubtask.setEpicId(updatedSubtask.getEpicId());
-            updateEpicStatus(findEpicById(originalEpic.getId()));
-            updateEpicStatus(findEpicById(updatedEpic.getId()));
+        if (updatedSubtask != null) {
+            Subtask originalSubtask = findSubtaskById(updatedSubtask.getId());
+            if (originalSubtask != null) {
+                originalSubtask.setDescription(updatedSubtask.getDescription());
+                originalSubtask.setName(updatedSubtask.getName());
+                if (updatedSubtask.getEpicId() != originalSubtask.getEpicId()) {
+                    Epic updatedEpic = findEpicById(updatedSubtask.getEpicId());
+                    Epic originalEpic = findEpicById(originalSubtask.getEpicId());
+                    originalEpic.getSubtasks().removeIf(i -> i.getId() == originalSubtask.getId());
+                    originalSubtask.setEpicId(updatedSubtask.getEpicId());
+                    updateEpicStatus(findEpicById(originalEpic.getId()));
+                    updateEpicStatus(findEpicById(updatedEpic.getId()));
+                }
+                originalSubtask.setEpicId(updatedSubtask.getEpicId());
+            }
         }
-        originalSubtask.setEpicId(updatedSubtask.getEpicId());
     }
 
     private void updateEpicStatus(Epic epic) {
