@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class Manager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
-    private final HashMap<Integer, Subtask> subTasks = new HashMap<>();
+    private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
     private int idGenerator = 0;
 
@@ -25,7 +25,7 @@ public class Manager {
 
     public ArrayList<Subtask> getSubtasks() {
         ArrayList<Subtask> result = new ArrayList<>();
-        for (Map.Entry<Integer, Subtask> a : subTasks.entrySet()) {
+        for (Map.Entry<Integer, Subtask> a : subtasks.entrySet()) {
             result.add(a.getValue());
         }
         return result;
@@ -44,7 +44,7 @@ public class Manager {
     }
 
     public void clearSubtasks() {
-        subTasks.clear();
+        subtasks.clear();
         for (Epic epic : epics.values()) {
             epic.getSubtasks().clear();
             updateEpicStatus(epic);
@@ -52,7 +52,7 @@ public class Manager {
     }
 
     public void clearEpics() {
-        subTasks.clear();
+        subtasks.clear();
         epics.clear();
     }
 
@@ -65,7 +65,7 @@ public class Manager {
     }
 
     public Subtask findSubtaskById(int id) {
-        return subTasks.get(id);
+        return subtasks.get(id);
     }
 
     public Epic findEpicById(int id) {
@@ -77,7 +77,7 @@ public class Manager {
     }
 
     public void removeSubtaskById(int id) {
-        subTasks.remove(id);
+        subtasks.remove(id);
         for (Epic epic : epics.values()) {
             epic.getSubtasks().clear();
             updateEpicStatus(epic);
@@ -88,7 +88,7 @@ public class Manager {
         Epic epic = findEpicById(id);
         if (epic != null) {
             for (Subtask subtask : epic.getSubtasks()) {
-                subTasks.remove(subtask.getId());
+                subtasks.remove(subtask.getId());
             }
             epics.remove(id);
         } else {
@@ -109,10 +109,10 @@ public class Manager {
     }
 
     public void addSubtask(Subtask subtask) {
-        subTasks.put(subtask.getId(), subtask);
-        for (Epic epic : epics.values()) {
-            epic.addSubtask(subtask);
-        }
+        subtasks.put(subtask.getId(), subtask);
+        Epic epic = epics.get(subtask.getEpicId());
+        epic.addSubtask(subtask);
+        updateEpicStatus(findEpicById(subtask.getEpicId()));
     }
 
     public void addEpic(Epic epic) {
@@ -122,11 +122,13 @@ public class Manager {
     public void updateTask(Task updatedTask) {
         if (updatedTask != null) {
             Task originalTask = findTaskById(updatedTask.getId());
-            originalTask.setDescription(updatedTask.getDescription());
-            originalTask.setName(updatedTask.getName());
-            originalTask.setStatus(updatedTask.getStatus());
-        } else {
-            System.out.println("Задача не найдена.");
+            if (originalTask != null) {
+                originalTask.setDescription(updatedTask.getDescription());
+                originalTask.setName(updatedTask.getName());
+                originalTask.setStatus(updatedTask.getStatus());
+            } else {
+                System.out.println("Задача не найдена.");
+            }
         }
     }
 
