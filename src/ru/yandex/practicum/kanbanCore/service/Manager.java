@@ -45,6 +45,10 @@ public class Manager {
 
     public void clearSubtasks() {
         subTasks.clear();
+        for (Epic epic : epics.values()) {
+            epic.getSubtasks().clear();
+            updateEpicStatus(epic);
+        }
     }
 
     public void clearEpics() {
@@ -74,43 +78,68 @@ public class Manager {
 
     public void removeSubtaskById(int id) {
         subTasks.remove(id);
+        for (Epic epic : epics.values()) {
+            epic.getSubtasks().clear();
+            updateEpicStatus(epic);
+        }
     }
 
     public void removeEpicById(int id) {
         Epic epic = findEpicById(id);
-        for (Subtask subtask : epic.getSubtasks()) {
-            subTasks.remove(subtask.getId());
+        if (epic != null) {
+            for (Subtask subtask : epic.getSubtasks()) {
+                subTasks.remove(subtask.getId());
+            }
+            epics.remove(id);
+        } else {
+            System.out.println("Эпик не найден.");
         }
-        epics.remove(id);
     }
 
     public void addTask(Task task) {
         tasks.put(task.getId(), task);
     }
 
+    public ArrayList<Subtask> getSubtasksOfEpic(Epic epic) {
+        if (epic != null) {
+            return epic.getSubtasks();
+        } else {
+            return null;
+        }
+    }
+
     public void addSubtask(Subtask subtask) {
         subTasks.put(subtask.getId(), subtask);
-        updateEpicStatus(findEpicById(subtask.getEpicId()));
+        for (Epic epic : epics.values()) {
+            epic.addSubtask(subtask);
+        }
     }
 
     public void addEpic(Epic epic) {
         epics.put(epic.getId(), epic);
-        updateEpicStatus(epic);
     }
 
     public void updateTask(Task updatedTask) {
-        Task originalTask = findTaskById(updatedTask.getId());
-        originalTask.setDescription(updatedTask.getDescription());
-        originalTask.setName(updatedTask.getName());
-        originalTask.setStatus(updatedTask.getStatus());
+        if (updatedTask != null) {
+            Task originalTask = findTaskById(updatedTask.getId());
+            originalTask.setDescription(updatedTask.getDescription());
+            originalTask.setName(updatedTask.getName());
+            originalTask.setStatus(updatedTask.getStatus());
+        } else {
+            System.out.println("Задача не найдена.");
+        }
     }
 
     public void updateEpic(Epic updatedEpic) {
-        Epic originalEpic = findEpicById(updatedEpic.getId());
-        originalEpic.setDescription(updatedEpic.getDescription());
-        originalEpic.setName(updatedEpic.getName());
-        originalEpic.setSubtasks(updatedEpic.getSubtasks());
-        updateEpicStatus(updatedEpic);
+        if (updatedEpic != null) {
+            Epic originalEpic = findEpicById(updatedEpic.getId());
+            originalEpic.setDescription(updatedEpic.getDescription());
+            originalEpic.setName(updatedEpic.getName());
+            originalEpic.setSubtasks(updatedEpic.getSubtasks());
+            updateEpicStatus(updatedEpic);
+        } else {
+            System.out.println("Эпик не найден.");
+        }
     }
 
     public void updateSubtask(Subtask updatedSubtask) {
@@ -130,14 +159,11 @@ public class Manager {
 
     private void updateEpicStatus(Epic epic) {
         ArrayList<Subtask> subtasks = epic.getSubtasks();
-        int newCounter = 0;
         int inProgressCounter = 0;
         int doneCounter = 0;
         for (int i = 0; i < subtasks.size(); i++) {
             Subtask subtask = subtasks.get(i);
-            if (subtask.getStatus() == Status.NEW) {
-                newCounter++;
-            } else if (subtask.getStatus() == Status.IN_PROGRESS) {
+            if (subtask.getStatus() == Status.IN_PROGRESS) {
                 inProgressCounter++;
             } else if (subtask.getStatus() == Status.DONE) {
                 doneCounter++;
