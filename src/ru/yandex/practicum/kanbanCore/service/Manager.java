@@ -116,7 +116,7 @@ public class Manager {
         if (subtask != null) {
             subtasks.put(subtask.getId(), subtask);
             Epic epic = epics.get(subtask.getEpicId());
-            if (epics.containsKey(subtask.getEpicId())) {
+            if (epic != null) {
                 epic.addSubtask(subtask);
             } else {
                 System.out.println("Эпик с таким id не найден, подзадача не добавлена!");
