@@ -122,7 +122,7 @@ public class Manager {
                 System.out.println("Эпик с таким id не найден, подзадача не добавлена!");
             }
         } else {
-            System.out.println("Задача не найдена.");
+            System.out.println("Подзадача не найдена.");
         }
         assert subtask != null;
         updateEpicStatus(findEpicById(subtask.getEpicId()));
@@ -146,6 +146,8 @@ public class Manager {
             } else {
                 System.out.println("Задача не найдена.");
             }
+        } else {
+            System.out.println("Обновленная задача не найдена.");
         }
     }
 
@@ -160,6 +162,8 @@ public class Manager {
             } else {
                 System.out.println("Эпик не найден.");
             }
+        } else {
+            System.out.println("Обновленный эпик не найден.");
         }
     }
 
@@ -178,11 +182,19 @@ public class Manager {
                             originalSubtask.setEpicId(updatedSubtask.getEpicId());
                             updateEpicStatus(findEpicById(originalEpic.getId()));
                             updateEpicStatus(findEpicById(updatedEpic.getId()));
+                        } else {
+                            System.out.println("Эпик не найден.");
                         }
+                    } else {
+                        System.out.println("Обновленный эпик не найден.");
                     }
                 }
                 originalSubtask.setEpicId(updatedSubtask.getEpicId());
+            } else {
+                System.out.println("Подзадача не найдена.");
             }
+        } else {
+            System.out.println("Обновленная подзадача не найдена.");
         }
     }
 

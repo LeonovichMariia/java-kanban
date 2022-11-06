@@ -22,8 +22,11 @@ public class Main {
         epic.addSubtask(subtask2);
         manager.addTask(task);
         manager.addEpic(epic);
-        System.out.println(manager.getTasks());
-        System.out.println(manager.getEpics());
+        manager.removeSubtaskById(subtask1.getId());
+        System.out.println(manager.getSubtasksOfEpic(epic));
+        manager.addSubtask(subtask);
+        manager.addSubtask(subtask1);
+        manager.addSubtask(subtask2);
         manager.clearTasks();
         System.out.println(manager.getTasks());
         manager.clearSubtasks();
