@@ -50,5 +50,14 @@ public class Main {
         System.out.println(manager2.getEpics());
         System.out.println(manager2.getSubtasks());
         System.out.println(manager2.getSubtasksOfEpic(epic2));
+        System.out.println(manager.getEpics());
+        manager.removeSubtaskById(subtask1.getId());
+        System.out.println(manager.getEpics());
+        manager.addSubtask(subtask);
+        System.out.println(manager.getSubtasks());
+        System.out.println(manager.getEpics());
+        Task task3 = new Task(task2.getId(), Status.DONE, task2.getDescription(), task2.getName());
+        manager2.updateTask(task3);
+        System.out.println(manager2.getTasks());
     }
 }
