@@ -7,6 +7,7 @@ import ru.yandex.practicum.kanbanCore.entity.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -17,8 +18,8 @@ public class InMemoryTaskManager implements TaskManager {
     private int idGenerator = 0;
 
     @Override
-    public HistoryManager getHistoryManager() {
-        return historyManager;
+    public LinkedList<Task> getHistory() {
+        return historyManager.getHistory();
     }
 
     @Override
@@ -110,7 +111,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeEpicById(int id) {
-        Epic epic = findEpicById(id);
+        Epic epic = epics.get(id);
         if (epic != null) {
             for (Subtask subtask : epic.getSubtasks()) {
                 subtasks.remove(subtask.getId());
@@ -153,7 +154,7 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Подзадача не найдена.");
         }
         assert subtask != null;
-        updateEpicStatus(findEpicById(subtask.getEpicId()));
+        updateEpicStatus(epics.get(subtask.getEpicId()));
     }
 
     @Override
@@ -168,7 +169,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateTask(Task updatedTask) {
         if (updatedTask != null) {
-            Task originalTask = findTaskById(updatedTask.getId());
+            Task originalTask = tasks.get(updatedTask.getId());
             if (originalTask != null) {
                 originalTask.setDescription(updatedTask.getDescription());
                 originalTask.setName(updatedTask.getName());
@@ -184,7 +185,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateEpic(Epic updatedEpic) {
         if (updatedEpic != null) {
-            Epic originalEpic = findEpicById(updatedEpic.getId());
+            Epic originalEpic = epics.get(updatedEpic.getId());
             if (originalEpic != null) {
                 originalEpic.setDescription(updatedEpic.getDescription());
                 originalEpic.setName(updatedEpic.getName());
@@ -201,19 +202,19 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubtask(Subtask updatedSubtask) {
         if (updatedSubtask != null) {
-            Subtask originalSubtask = findSubtaskById(updatedSubtask.getId());
+            Subtask originalSubtask = subtasks.get(updatedSubtask.getId());
             if (originalSubtask != null) {
                 originalSubtask.setDescription(updatedSubtask.getDescription());
                 originalSubtask.setName(updatedSubtask.getName());
                 if (updatedSubtask.getEpicId() != originalSubtask.getEpicId()) {
-                    Epic updatedEpic = findEpicById(updatedSubtask.getEpicId());
+                    Epic updatedEpic = epics.get(updatedSubtask.getEpicId());
                     if (updatedEpic != null) {
-                        Epic originalEpic = findEpicById(originalSubtask.getEpicId());
+                        Epic originalEpic = epics.get(originalSubtask.getEpicId());
                         if (originalEpic != null) {
                             originalEpic.getSubtasks().removeIf(i -> i.getId() == originalSubtask.getId());
                             originalSubtask.setEpicId(updatedSubtask.getEpicId());
-                            updateEpicStatus(findEpicById(originalEpic.getId()));
-                            updateEpicStatus(findEpicById(updatedEpic.getId()));
+                            updateEpicStatus(epics.get(originalEpic.getId()));
+                            updateEpicStatus(epics.get(updatedEpic.getId()));
                         } else {
                             System.out.println("Эпик не найден.");
                         }

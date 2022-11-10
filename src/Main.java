@@ -10,7 +10,6 @@ public class Main {
 
     public static void main(String[] args) {
         TaskManager taskManager = Managers.getDefault();
-        HistoryManager historyManager = Managers.getDefaultHistory();
         Task task = new Task(taskManager.generateId(), Status.NEW, "TaskDescription", "Doll");
         Task task2 = new Task(taskManager.generateId(), Status.IN_PROGRESS, "TaskDescription2", "Doll2");
         Task task3 = new Task(taskManager.generateId(), Status.DONE, "TaskDescription3", "Doll3");
@@ -45,19 +44,9 @@ public class Main {
         taskManager.findTaskById(task2.getId());
         taskManager.findTaskById(task2.getId());
         taskManager.findTaskById(task2.getId());
-        System.out.println(taskManager.getHistoryManager().getHistory());
+        System.out.println(taskManager.getHistory());
         Task task1 = new Task(task.getId(), Status.IN_PROGRESS, task.getDescription(), task.getName());
         taskManager.updateTask(task1);
         System.out.println(taskManager.getTasks());
-        taskManager.addSubtask(subtask2);
-        Subtask subtask5 = new Subtask(subtask2.getId(), Status.NEW, "====newDescription2====", "Book2!!!",
-                epic.getId());
-        taskManager.updateSubtask(subtask5);
-        System.out.println(taskManager.getSubtasks());
-        subtask2.setStatus(Status.IN_PROGRESS);
-        System.out.println(taskManager.getSubtasks());
-        historyManager.addToHistory(task1);
-        historyManager.addToHistory(task);
-        System.out.println(historyManager.getHistory());
     }
 }

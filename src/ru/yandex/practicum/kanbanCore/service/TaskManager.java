@@ -5,9 +5,10 @@ import ru.yandex.practicum.kanbanCore.entity.Subtask;
 import ru.yandex.practicum.kanbanCore.entity.Task;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public interface TaskManager {
-    HistoryManager getHistoryManager();
+    LinkedList<Task> getHistory();
 
     ArrayList<Task> getTasks();
 
