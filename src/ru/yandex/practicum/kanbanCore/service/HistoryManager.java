@@ -8,4 +8,6 @@ public interface HistoryManager {
     LinkedList<Task> getHistory();
 
     void addToHistory(Task task);
+
+    void remove (int id);
 }
