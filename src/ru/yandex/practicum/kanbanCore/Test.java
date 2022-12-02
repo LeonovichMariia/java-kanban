@@ -44,7 +44,7 @@ public class Test {
         System.out.println(taskManager.getHistory());
         customLinkedList.linkLast(task);
         customLinkedList.linkLast(task2);
-        customLinkedList.removeNode(task2);
+        customLinkedList.removeNode(task);
         System.out.println(customLinkedList.getTasks());
     }
 }

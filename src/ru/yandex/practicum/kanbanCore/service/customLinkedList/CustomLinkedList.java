@@ -3,23 +3,27 @@ package ru.yandex.practicum.kanbanCore.service.customLinkedList;
 import ru.yandex.practicum.kanbanCore.entity.Task;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CustomLinkedList {
     private Node head;
     private Node tail;
+    private final Map<Integer, Node> hashMap = new HashMap<>();
     private int size = 0;
 
     public void linkLast(Task task) {
+        Node node = new Node(task);
         if (head == null) {
-            head = new Node(task);
-            tail = head;
+            head = node;
         } else {
-            Node node = new Node(task);
             tail.setNext(node);
-            node.setPrev(tail);
             tail = node;
         }
+        node.setPrev(tail);
+        tail = head;
         size++;
+        hashMap.put(task.getId(), node);
     }
 
     public ArrayList<Task> getTasks() {
@@ -33,31 +37,25 @@ public class CustomLinkedList {
     }
 
     public void removeNode(Task task) {
-        Node currentNode = head;
-        while (currentNode != null) {
-            if (currentNode.getTask() == task) {
-                if (size == 1) {
-                    head = null;
-                    tail = null;
-                } else {
-                    Node nextNode = currentNode.getNext();
-                    Node prevNode = currentNode.getPrev();
-                    if (prevNode == null) {
-                        nextNode.setPrev(null);
-                        head = nextNode;
-                    } else if (nextNode == null) {
-                        prevNode.setNext(null);
-                        tail = prevNode;
-                    } else {
-                        prevNode.setNext(nextNode);
-                        nextNode.setPrev(prevNode);
-                    }
-                }
-                size--;
-                break;
-            } else {
-                currentNode = currentNode.getNext();
-            }
+        Node node = hashMap.get(task.getId());
+        if (node == null) {
+            return;
         }
+        Node nextNode = node.getNext();
+        Node prevNode = node.getPrev();
+        if (prevNode == null && nextNode == null) {
+            head = null;
+            tail = null;
+        } else if (prevNode == null) {
+            nextNode.setPrev(null);
+            head = nextNode;
+        } else if (nextNode == null) {
+            prevNode.setNext(null);
+            tail = prevNode;
+        } else {
+            prevNode.setNext(nextNode);
+            nextNode.setPrev(prevNode);
+        }
+        hashMap.remove(task.getId());
     }
 }
