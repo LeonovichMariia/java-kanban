@@ -5,7 +5,6 @@ import ru.yandex.practicum.kanbanCore.service.customLinkedList.CustomLinkedList;
 
 import java.util.*;
 
-
 public class InMemoryHistoryManager implements HistoryManager {
     private final CustomLinkedList history = new CustomLinkedList();
     private final Map<Integer, Task> hashMap = new HashMap<>();
