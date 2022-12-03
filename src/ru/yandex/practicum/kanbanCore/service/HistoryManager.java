@@ -2,10 +2,10 @@ package ru.yandex.practicum.kanbanCore.service;
 
 import ru.yandex.practicum.kanbanCore.entity.Task;
 
-import java.util.LinkedList;
+import java.util.List;
 
 public interface HistoryManager {
-    LinkedList<Task> getHistory();
+    List<Task> getHistory();
 
     void addToHistory(Task task);
 
