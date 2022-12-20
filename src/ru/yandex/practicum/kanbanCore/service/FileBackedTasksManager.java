@@ -44,46 +44,33 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     public Task taskFromString(String value) {
-        if (value != null) {
-            String[] taskSplit = value.split(",");
-            Task task = null;
-            switch (taskSplit[1]) {
-                case "TASK":
-                    task = new Task(Integer.parseInt(taskSplit[0]), Status.valueOf(taskSplit[3]), taskSplit[4],
-                            taskSplit[2]);
-                    break;
-                case "EPIC":
-                    task = new Epic(Integer.parseInt(taskSplit[0]), Status.valueOf(taskSplit[3]), taskSplit[4],
-                            taskSplit[2]);
-                    break;
-                case "SUBTASK":
-                    task = new Subtask(Integer.parseInt(taskSplit[0]), Status.valueOf(taskSplit[3]), taskSplit[4],
-                            taskSplit[2], Integer.parseInt(taskSplit[5]));
-                    break;
-            }
-            return task;
-        } else {
-            return null;
+        String[] taskSplit = value.split(",");
+        Task task = null;
+        switch (taskSplit[1]) {
+            case "TASK":
+                task = new Task(Integer.parseInt(taskSplit[0]), Status.valueOf(taskSplit[3]), taskSplit[4],
+                        taskSplit[2]);
+                break;
+            case "EPIC":
+                task = new Epic(Integer.parseInt(taskSplit[0]), Status.valueOf(taskSplit[3]), taskSplit[4],
+                        taskSplit[2]);
+                break;
+            case "SUBTASK":
+                task = new Subtask(Integer.parseInt(taskSplit[0]), Status.valueOf(taskSplit[3]), taskSplit[4],
+                        taskSplit[2], Integer.parseInt(taskSplit[5]));
+                break;
         }
+        return task;
     }
 
     public static List<Integer> historyFromString(String value) {
-        if (value != null) {
-            List<Integer> tasksId = new ArrayList<>();
-            String[] ids = value.split(",");
-            for (String id : ids) {
-                tasksId.add(Integer.parseInt(id));
-            }
-            return tasksId;
-        } else {
-            return null;
+        List<Integer> tasksId = new ArrayList<>();
+        String[] ids = value.split(",");
+        for (String id : ids) {
+            tasksId.add(Integer.parseInt(id));
         }
+        return tasksId;
     }
-
-//    public static FileBackedTasksManager loadFromFile(File file) {
-//        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
-//        return fileBackedTasksManager;
-//    }
 
     public static FileBackedTasksManager loadFromFile(File file) {
         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
