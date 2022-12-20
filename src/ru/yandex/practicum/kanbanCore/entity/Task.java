@@ -5,12 +5,19 @@ public class Task {
     private String description;
     private final int id;
     private Status status;
+    private TaskType taskType;
 
     public Task(int id, Status status, String description, String name) {
         this.id = id;
         this.status = status;
         this.description = description;
         this.name = name;
+        setTaskType();
+    }
+
+    private void setTaskType() {
+       String className = getClass().getSimpleName().toUpperCase();
+       taskType = TaskType.valueOf(className);
     }
 
     public String getName() {
@@ -33,6 +40,10 @@ public class Task {
         return id;
     }
 
+    public TaskType getTaskType() {
+        return taskType;
+    }
+
     public Status getStatus() {
         return status;
     }
@@ -43,11 +54,6 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", id=" + id +
-                ", status=" + status +
-                '}';
+        return getId() + "," + getTaskType() + "," + getName()+ "," + getStatus() + "," + getDescription();
     }
 }
