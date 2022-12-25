@@ -10,7 +10,7 @@ import java.util.*;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
     private File file;
-    private static final String TITLE = "id,type,name,status,description,epic" + System.lineSeparator();
+    private static final String TITLE = "id,type,name,status,description,epic";
 
     public FileBackedTasksManager(File file) {
         super();
@@ -20,6 +20,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     public void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
             writer.write(TITLE);
+            writer.newLine();
             for (Task task : getTasks()) {
                 writer.write(task.toString());
                 writer.newLine();
@@ -79,30 +80,34 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
             bufferedReader.readLine();
             String line = bufferedReader.readLine();
-            while (!StringUtils.isBlank(line)) {
-                Task task = fileBackedTasksManager.taskFromString(line);
-                if (task.getTaskType() == TaskType.TASK) {
-                    fileBackedTasksManager.addTask(task);
-                } else if (task.getTaskType() == TaskType.EPIC) {
-                    fileBackedTasksManager.addEpic((Epic) task);
-                } else if (task.getTaskType() == TaskType.SUBTASK) {
-                    fileBackedTasksManager.addSubtask((Subtask) task);
-                }
-                System.out.println(line);
-                line = bufferedReader.readLine();
-            }
-            String historyOfTasksId = bufferedReader.readLine();
-            if (historyOfTasksId != null) {
-                List<Integer> ids = historyFromString(historyOfTasksId);
-                System.out.println();
-                for (Integer i : ids) {
-                    fileBackedTasksManager.findEpicById(i);
-                    fileBackedTasksManager.findTaskById(i);
-                    fileBackedTasksManager.findSubtaskById(i);
-                }
-                System.out.println(ids);
+            if (StringUtils.isBlank(line)) {
+                throw new ManagerLoadException("Файл пуст: загрузка данных невозможна!");
             } else {
-                System.out.println(System.lineSeparator() + "История пуста!");
+                while (!StringUtils.isBlank(line)) {
+                    Task task = fileBackedTasksManager.taskFromString(line);
+                    if (task.getTaskType() == TaskType.TASK) {
+                        fileBackedTasksManager.addTask(task);
+                    } else if (task.getTaskType() == TaskType.EPIC) {
+                        fileBackedTasksManager.addEpic((Epic) task);
+                    } else if (task.getTaskType() == TaskType.SUBTASK) {
+                        fileBackedTasksManager.addSubtask((Subtask) task);
+                    }
+                    System.out.println(line);
+                    line = bufferedReader.readLine();
+                }
+                String historyOfTasksId = bufferedReader.readLine();
+                if (historyOfTasksId != null) {
+                    List<Integer> ids = historyFromString(historyOfTasksId);
+                    System.out.println();
+                    for (Integer i : ids) {
+                        fileBackedTasksManager.findEpicById(i);
+                        fileBackedTasksManager.findTaskById(i);
+                        fileBackedTasksManager.findSubtaskById(i);
+                    }
+                    System.out.println(ids);
+                } else {
+                    System.out.println(System.lineSeparator() + "История пуста!");
+                }
             }
         } catch (IOException e) {
             throw new ManagerLoadException("Невозможно загрузить файл" + file.getName());
