@@ -7,6 +7,7 @@ public class Epic extends Task {
 
     public Epic(int id, Status status, String description, String name) {
         super(id, status, description, name);
+        this.taskType = TaskType.EPIC;
     }
 
     public ArrayList<Subtask> getSubtasks() {
@@ -19,10 +20,5 @@ public class Epic extends Task {
 
     public void addSubtask(Subtask subtask) {
         subtasks.add(subtask);
-    }
-
-    @Override
-    public String toString() {
-        return getId() + "," + getTaskType() + "," + getName() + "," + getStatus() + "," + getDescription();
     }
 }

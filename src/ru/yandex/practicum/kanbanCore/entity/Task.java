@@ -5,19 +5,14 @@ public class Task {
     private String description;
     private final int id;
     private Status status;
-    private TaskType taskType;
+    protected TaskType taskType;
 
     public Task(int id, Status status, String description, String name) {
         this.id = id;
         this.status = status;
         this.description = description;
         this.name = name;
-        setTaskType();
-    }
-
-    private void setTaskType() {
-       String className = getClass().getSimpleName().toUpperCase();
-       taskType = TaskType.valueOf(className);
+        this.taskType = TaskType.TASK;
     }
 
     public String getName() {

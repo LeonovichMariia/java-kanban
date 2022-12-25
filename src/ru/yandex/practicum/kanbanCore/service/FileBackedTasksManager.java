@@ -6,12 +6,11 @@ import ru.yandex.practicum.kanbanCore.exceptions.ManagerSaveException;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
     private File file;
+    private static final String TITLE = "id,type,name,status,description,epic" + System.lineSeparator();
 
     public FileBackedTasksManager(File file) {
         super();
@@ -20,7 +19,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     public void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
-            writer.write("id,type,name,status,description,epic" + "\n");
+            writer.write(TITLE);
             for (Task task : getTasks()) {
                 writer.write(task.toString());
                 writer.newLine();
@@ -37,27 +36,30 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             for (Task task : getHistory()) {
                 historySave.add(String.valueOf(task.getId()));
             }
-            writer.write("\n" + String.join(",", historySave));
+            writer.newLine();
+            writer.write(String.join(",", historySave));
         } catch (IOException e) {
-            throw new ManagerSaveException("Сохранение невозможно" + file.getName(), e);
+            throw new ManagerSaveException("Сохранение невозможно" + file.getName());
         }
     }
 
     public Task taskFromString(String value) {
         String[] taskSplit = value.split(",");
         Task task = null;
-        switch (taskSplit[1]) {
-            case "TASK":
-                task = new Task(Integer.parseInt(taskSplit[0]), Status.valueOf(taskSplit[3]), taskSplit[4],
-                        taskSplit[2]);
+        int id = Integer.parseInt(taskSplit[0]);
+        Status status = Status.valueOf(taskSplit[3]);
+        String title = taskSplit[2];
+        String description = taskSplit[4];
+        switch (TaskType.valueOf(taskSplit[1])) {
+            case TASK:
+                task = new Task(id, status, description, title);
                 break;
-            case "EPIC":
-                task = new Epic(Integer.parseInt(taskSplit[0]), Status.valueOf(taskSplit[3]), taskSplit[4],
-                        taskSplit[2]);
+            case EPIC:
+                task = new Epic(id, status, description, title);
                 break;
-            case "SUBTASK":
-                task = new Subtask(Integer.parseInt(taskSplit[0]), Status.valueOf(taskSplit[3]), taskSplit[4],
-                        taskSplit[2], Integer.parseInt(taskSplit[5]));
+            case SUBTASK:
+                int epicId = Integer.parseInt(taskSplit[5]);
+                task = new Subtask(id, status, description, title, epicId);
                 break;
         }
         return task;
@@ -75,10 +77,10 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     public static FileBackedTasksManager loadFromFile(File file) {
         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
-            String s;
             bufferedReader.readLine();
-            while (!(s = bufferedReader.readLine()).equals("")) {
-                Task task = fileBackedTasksManager.taskFromString(s);
+            String line = bufferedReader.readLine();
+            while (!StringUtils.isBlank(line)) {
+                Task task = fileBackedTasksManager.taskFromString(line);
                 if (task.getTaskType() == TaskType.TASK) {
                     fileBackedTasksManager.addTask(task);
                 } else if (task.getTaskType() == TaskType.EPIC) {
@@ -86,19 +88,24 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 } else if (task.getTaskType() == TaskType.SUBTASK) {
                     fileBackedTasksManager.addSubtask((Subtask) task);
                 }
-                System.out.println(s);
+                System.out.println(line);
+                line = bufferedReader.readLine();
             }
-            String br = bufferedReader.readLine();
-            List<Integer> ids = historyFromString(br);
-            System.out.println();
-            for (Integer i : ids) {
-                fileBackedTasksManager.findEpicById(i);
-                fileBackedTasksManager.findTaskById(i);
-                fileBackedTasksManager.findSubtaskById(i);
+            String historyOfTasksId = bufferedReader.readLine();
+            if (historyOfTasksId != null) {
+                List<Integer> ids = historyFromString(historyOfTasksId);
+                System.out.println();
+                for (Integer i : ids) {
+                    fileBackedTasksManager.findEpicById(i);
+                    fileBackedTasksManager.findTaskById(i);
+                    fileBackedTasksManager.findSubtaskById(i);
+                }
+                System.out.println(ids);
+            } else {
+                System.out.println(System.lineSeparator() + "История пуста!");
             }
-            System.out.println();
         } catch (IOException e) {
-            throw new ManagerLoadException("Невозможно загрузить файл" + file.getName(), e);
+            throw new ManagerLoadException("Невозможно загрузить файл" + file.getName());
         }
         return fileBackedTasksManager;
     }
@@ -225,30 +232,4 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         super.updateSubtask(updatedSubtask);
         save();
     }
-
-//    public static void main(String[] args) {
-//        FileBackedTasksManager fb = loadFromFile(new File("tasks"));
-//        Task task0 = new Task(fb.generateId(), Status.NEW, "Read the book", "Book");
-//        Task task1 = new Task(fb.generateId(), Status.NEW, "Java learning", "Java");
-//        Epic epic = new Epic(fb.generateId(), Status.IN_PROGRESS,"Make a renovation at home",
-//                "Renovation");
-//        Subtask subtask = new Subtask(fb.generateId(), Status.DONE, "Change flooring",
-//                "Bedroom", epic.getId());
-//        Subtask subtask2 = new Subtask(fb.generateId(), Status.NEW, "Change wallpaper",
-//                "Kitchen", epic.getId());
-//        Subtask subtask3 = new Subtask(fb.generateId(), Status.IN_PROGRESS, "Hang a shelf",
-//                "Bathroom", epic.getId());
-//        fb.findTaskById(task0.getId());
-//        fb.findTaskById(task1.getId());
-//        fb.findTaskById(epic.getId());
-//        fb.findTaskById(subtask.getId());
-//        fb.findTaskById(subtask2.getId());
-//        fb.findTaskById(subtask3.getId());
-//        fb.findTaskById(subtask.getId());
-//        fb.findTaskById(subtask2.getId());
-//        fb.findTaskById(subtask3.getId());
-//        System.out.println(fb.getTasks());
-//        FileBackedTasksManager fb2 = loadFromFile(new File("tasks"));
-//        System.out.println();
-//    }
 }
