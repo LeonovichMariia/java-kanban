@@ -1,8 +1,0 @@
-id,type,name,status,description,epic
-0,TASK,Book,NEW,ReadTheBook
-1,EPIC,Book,IN_PROGRESS,ReadTheBook
-2,SUBTASK,Book0,IN_PROGRESS,Read,1
-3,SUBTASK,Book2,IN_PROGRESS,Read2,1
-4,SUBTASK,Java,IN_PROGRESS,Read3,1
-
-1,2,3,0

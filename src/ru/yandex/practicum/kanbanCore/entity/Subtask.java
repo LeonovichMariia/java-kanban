@@ -1,10 +1,12 @@
 package ru.yandex.practicum.kanbanCore.entity;
 
+import java.time.LocalDateTime;
+
 public class Subtask extends Task {
     private int epicId;
 
-    public Subtask(int id, Status status, String description, String name, int epicId) {
-        super(id, status, description, name);
+    public Subtask(int id, Status status, String description, String name, int epicId, LocalDateTime startTime, int duration) {
+        super(id, status, description, name, startTime, duration);
         this.epicId = epicId;
         this.taskType = TaskType.SUBTASK;
     }

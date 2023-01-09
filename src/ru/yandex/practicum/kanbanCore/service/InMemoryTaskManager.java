@@ -8,11 +8,18 @@ import ru.yandex.practicum.kanbanCore.entity.Task;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
-    protected final HashMap<Integer, Task> tasks = new HashMap<>();
-    protected final HashMap<Integer, Subtask> subtasks = new HashMap<>();
-    protected final HashMap<Integer, Epic> epics = new HashMap<>();
+    protected final Map<Integer, Task> tasks = new HashMap<>();
+    protected final Map<Integer, Subtask> subtasks = new HashMap<>();
+    protected final Map<Integer, Epic> epics = new HashMap<>();
     protected final HistoryManager historyManager = Managers.getDefaultHistory();
     private int idGenerator = 0;
+    public TreeSet<Task> prioritizedTaskSet = new TreeSet<>(Comparator.nullsLast(Comparator.comparing(Task::getStartTime)).
+            thenComparing(Task::getId));
+
+    @Override
+    public List<Task> getPrioritizedTasks() {
+        return new ArrayList<>(prioritizedTaskSet);
+    }
 
     @Override
     public List<Task> getHistory() {
@@ -48,6 +55,17 @@ public class InMemoryTaskManager implements TaskManager {
             result.add(a.getValue());
         }
         return result;
+    }
+
+    public void clearPrioritizedTask() {
+        prioritizedTaskSet.clear();
+    }
+
+    public void clearAllTasks() {
+        tasks.clear();
+        subtasks.clear();
+        epics.clear();
+        prioritizedTaskSet.clear();
     }
 
     @Override
@@ -144,10 +162,25 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void addTask(Task task) {
         if (task != null) {
+            if (isCrossing(task)) {
+                System.out.println("Пересечение задач! " + task);
+                return;
+            }
             tasks.put(task.getId(), task);
+            prioritizedTaskSet.add(task);
         } else {
             System.out.println("Задача не найдена.");
         }
+    }
+
+    public boolean isCrossing(Task task) {
+        for (Task t : prioritizedTaskSet) {
+            if (task.getStartTime().isAfter(t.getStartTime()) && task.getStartTime().isBefore(t.getEndTime())
+                    || task.getEndTime().isAfter(t.getStartTime()) && task.getEndTime().isBefore(t.getEndTime())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -162,7 +195,12 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void addSubtask(Subtask subtask) {
         if (subtask != null) {
+            if (isCrossing(subtask)) {
+                System.out.println("Пересечение задач! " + subtask);
+                return;
+            }
             subtasks.put(subtask.getId(), subtask);
+            prioritizedTaskSet.add(subtask);
             Epic epic = epics.get(subtask.getEpicId());
             if (epic != null) {
                 epic.addSubtask(subtask);
@@ -188,11 +226,17 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateTask(Task updatedTask) {
         if (updatedTask != null) {
+            if (isCrossing(updatedTask)) {
+                System.out.println("Пересечение задач! " + updatedTask);
+                return;
+            }
             Task originalTask = tasks.get(updatedTask.getId());
             if (originalTask != null) {
                 originalTask.setDescription(updatedTask.getDescription());
                 originalTask.setName(updatedTask.getName());
                 originalTask.setStatus(updatedTask.getStatus());
+                originalTask.setStartTime(updatedTask.getStartTime());
+                originalTask.setDuration(updatedTask.getDuration());
             } else {
                 System.out.println("Задача не найдена.");
             }
@@ -221,10 +265,17 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubtask(Subtask updatedSubtask) {
         if (updatedSubtask != null) {
+            if (isCrossing(updatedSubtask)) {
+                System.out.println("Пересечение задач! " + updatedSubtask);
+                return;
+            }
             Subtask originalSubtask = subtasks.get(updatedSubtask.getId());
             if (originalSubtask != null) {
                 originalSubtask.setDescription(updatedSubtask.getDescription());
                 originalSubtask.setName(updatedSubtask.getName());
+                originalSubtask.setStatus(updatedSubtask.getStatus());
+                originalSubtask.setStartTime(updatedSubtask.getStartTime());
+                originalSubtask.setDuration(updatedSubtask.getDuration());
                 if (updatedSubtask.getEpicId() != originalSubtask.getEpicId()) {
                     Epic updatedEpic = epics.get(updatedSubtask.getEpicId());
                     if (updatedEpic != null) {

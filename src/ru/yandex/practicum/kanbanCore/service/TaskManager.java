@@ -6,6 +6,7 @@ import ru.yandex.practicum.kanbanCore.entity.Task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 public interface TaskManager {
     List<Task> getHistory();
@@ -49,4 +50,9 @@ public interface TaskManager {
     void updateEpic(Epic updatedEpic);
 
     void updateSubtask(Subtask updatedSubtask);
+
+    List<Task> getPrioritizedTasks();
+    void clearPrioritizedTask();
+    void clearAllTasks();
+    boolean isCrossing(Task task);
 }

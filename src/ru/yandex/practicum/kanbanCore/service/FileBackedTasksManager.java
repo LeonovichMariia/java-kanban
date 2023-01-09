@@ -6,11 +6,12 @@ import ru.yandex.practicum.kanbanCore.exceptions.ManagerSaveException;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
     private File file;
-    private static final String TITLE = "id,type,name,status,description,epic";
+    private static final String TITLE = "id,type,name,status,description,startTime,duration,epic";
 
     public FileBackedTasksManager(File file) {
         super();
@@ -53,14 +54,18 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         String description = taskSplit[4];
         switch (TaskType.valueOf(taskSplit[1])) {
             case TASK:
-                task = new Task(id, status, description, title);
+                LocalDateTime taskStartTime = LocalDateTime.parse(taskSplit[5]);
+                int taskDuration = Integer.parseInt(taskSplit[6]);
+                task = new Task(id, status, description, title, taskStartTime, taskDuration);
                 break;
             case EPIC:
                 task = new Epic(id, status, description, title);
                 break;
             case SUBTASK:
-                int epicId = Integer.parseInt(taskSplit[5]);
-                task = new Subtask(id, status, description, title, epicId);
+                int epicId = Integer.parseInt(taskSplit[7]);
+                LocalDateTime startTime = LocalDateTime.parse(taskSplit[5]);
+                int duration = Integer.parseInt(taskSplit[6]);
+                task = new Subtask(id, status, description, title, epicId, startTime, duration);
                 break;
         }
         return task;
@@ -105,9 +110,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                         fileBackedTasksManager.findSubtaskById(i);
                     }
                     System.out.println(ids);
-                } else {
-                    System.out.println(System.lineSeparator() + "История пуста!");
                 }
+//                } else {
+//                    throw new ManagerLoadException(System.lineSeparator() + "История просмотра пуста: загрузка " +
+//                            "данных невозможна!");
+//                }
             }
         } catch (IOException e) {
             throw new ManagerLoadException("Невозможно загрузить файл" + file.getName());
