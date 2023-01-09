@@ -1,7 +1,10 @@
-package ru.yandex.practicum.kanbanCore.entity;
+package Epic;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.kanbanCore.entity.Epic;
+import ru.yandex.practicum.kanbanCore.entity.Status;
+import ru.yandex.practicum.kanbanCore.entity.Subtask;
 import ru.yandex.practicum.kanbanCore.service.Managers;
 import ru.yandex.practicum.kanbanCore.service.TaskManager;
 

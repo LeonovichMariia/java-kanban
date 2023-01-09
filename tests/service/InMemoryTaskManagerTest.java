@@ -1,10 +1,11 @@
-package ru.yandex.practicum.kanbanCore.service;
+package service;
 
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.kanbanCore.entity.Epic;
 import ru.yandex.practicum.kanbanCore.entity.Status;
 import ru.yandex.practicum.kanbanCore.entity.Subtask;
 import ru.yandex.practicum.kanbanCore.entity.Task;
+import ru.yandex.practicum.kanbanCore.service.InMemoryTaskManager;
 
 import java.time.LocalDateTime;
 
