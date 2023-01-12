@@ -9,6 +9,7 @@ import ru.yandex.practicum.kanbanCore.service.TaskManager;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
@@ -20,7 +21,7 @@ public class Main {
 //        Epic epic = new Epic(fileBackedTasksManager.generateId(), Status.IN_PROGRESS, "Make a renovation at home",
 //                "Renovation");
 //        Subtask subtask = new Subtask(fileBackedTasksManager.generateId(), Status.DONE, "Change flooring",
-//                "Bedroom", epic.getId(), LocalDateTime.of(2022,12,31,15,50), 20);
+//                "Bedroom", epic.getId(), LocalDateTime.of(2022,12,31,15,00), 20);
 //        Subtask subtask2 = new Subtask(fileBackedTasksManager.generateId(), Status.NEW, "Change wallpaper",
 //                "Kitchen", epic.getId(), LocalDateTime.of(2022,12,31,16,20), 20);
 //        Subtask subtask3 = new Subtask(fileBackedTasksManager.generateId(), Status.IN_PROGRESS, "Hang a shelf",

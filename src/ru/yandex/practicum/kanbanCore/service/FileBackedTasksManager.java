@@ -85,17 +85,22 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
             bufferedReader.readLine();
             String line = bufferedReader.readLine();
-            if (StringUtils.isBlank(line)) {
+            if (StringUtils.fileIsEmpty(line)) {
                 throw new ManagerLoadException("Файл пуст: загрузка данных невозможна!");
             } else {
-                while (!StringUtils.isBlank(line)) {
+                while (!StringUtils.fileIsEmpty(line)) {
                     Task task = fileBackedTasksManager.taskFromString(line);
-                    if (task.getTaskType() == TaskType.TASK) {
-                        fileBackedTasksManager.addTask(task);
-                    } else if (task.getTaskType() == TaskType.EPIC) {
-                        fileBackedTasksManager.addEpic((Epic) task);
-                    } else if (task.getTaskType() == TaskType.SUBTASK) {
-                        fileBackedTasksManager.addSubtask((Subtask) task);
+                    TaskType taskType = task.getTaskType();
+                    switch (taskType) {
+                        case TASK:
+                            fileBackedTasksManager.addTask(task);
+                            break;
+                        case EPIC:
+                            fileBackedTasksManager.addEpic((Epic) task);
+                            break;
+                        case SUBTASK:
+                            fileBackedTasksManager.addSubtask((Subtask) task);
+                            break;
                     }
                     System.out.println(line);
                     line = bufferedReader.readLine();

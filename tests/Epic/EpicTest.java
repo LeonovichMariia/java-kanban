@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTest {
-    public Epic epic;
+    private Epic epic;
     public TaskManager taskManager;
 
     @BeforeEach

@@ -9,6 +9,7 @@ import ru.yandex.practicum.kanbanCore.service.Managers;
 import ru.yandex.practicum.kanbanCore.service.TaskManager;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,9 +17,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class HistoryManagerTest {
     public HistoryManager historyManager;
     public TaskManager taskManager;
-    public Task task;
-    public Task task2;
-    public Task task3;
+    private Task task;
+    private Task task2;
+    private Task task3;
 
     @BeforeEach
     public void setUp() {
@@ -35,9 +36,10 @@ class HistoryManagerTest {
     @Test
     public void shouldAddOneTaskInHistory() {
         historyManager.addToHistory(task);
-        final List<Task> history = historyManager.getHistory();
+        List<Task> history = new ArrayList<>();
+        history.add(task);
         assertNotNull(history, "История не пустая.");
-        assertEquals(1, history.size(), "История не пустая.");
+        assertEquals(history, historyManager.getHistory(), "История не пустая.");
     }
 
     @Test //Пустая история задач
@@ -51,8 +53,9 @@ class HistoryManagerTest {
         historyManager.addToHistory(task);
         historyManager.addToHistory(task);
         historyManager.addToHistory(task);
-        List<Task> taskHistory = historyManager.getHistory();
-        assertEquals(1, taskHistory.size(), "Повторные записи отсуствуют");
+        List<Task> taskHistory = new ArrayList<>();
+        taskHistory.add(task);
+        assertEquals(taskHistory, historyManager.getHistory(), "Повторные записи отсуствуют");
     }
 
     @Test //Проверка на удаление из начала списка истории задач
@@ -61,8 +64,13 @@ class HistoryManagerTest {
         historyManager.addToHistory(task2);
         historyManager.addToHistory(task3);
         historyManager.remove(task.getId());
-        List<Task> taskHistory = historyManager.getHistory();
-        assertEquals(2, taskHistory.size(), "Количество записей в истории: 2");
+        List<Task> taskHistory = new ArrayList<>();
+        taskHistory.add(task);
+        taskHistory.add(task2);
+        taskHistory.add(task3);
+        taskHistory.remove(task);
+
+        assertEquals(taskHistory, historyManager.getHistory(), "Удалена первая задача");
     }
 
     @Test //Проверка на удаление из середины списка истории задач
@@ -71,8 +79,13 @@ class HistoryManagerTest {
         historyManager.addToHistory(task2);
         historyManager.addToHistory(task3);
         historyManager.remove(task2.getId());
-        List<Task> taskHistory = historyManager.getHistory();
-        assertEquals(taskHistory.size(), 2, "Количество записей в истории: 2");
+        List<Task> taskHistory = new ArrayList<>();
+        taskHistory.add(task);
+        taskHistory.add(task2);
+        taskHistory.add(task3);
+        taskHistory.remove(task2);
+
+        assertEquals(taskHistory, historyManager.getHistory(), "Удалена вторая задача");
     }
 
     @Test // Проверка на удаление из конца списка истории задач
@@ -81,8 +94,13 @@ class HistoryManagerTest {
         historyManager.addToHistory(task2);
         historyManager.addToHistory(task3);
         historyManager.remove(task3.getId());
-        List<Task> taskHistory = historyManager.getHistory();
-        assertEquals(2, taskHistory.size(), "Количество записей в истории: 2");
+        List<Task> taskHistory = new ArrayList<>();
+        taskHistory.add(task);
+        taskHistory.add(task2);
+        taskHistory.add(task3);
+        taskHistory.remove(task3);
+
+        assertEquals(taskHistory, historyManager.getHistory(), "Удалена последняя задача");
     }
 
     @Test
@@ -90,8 +108,10 @@ class HistoryManagerTest {
         assertEquals(0, historyManager.getHistory().size());
         historyManager.addToHistory(task);
         historyManager.addToHistory(task2);
-        List<Task> history = historyManager.getHistory();
+        List<Task> history = new ArrayList<>();
+        history.add(task);
+        history.add(task2);
         assertNotNull(history, "История не пустая.");
-        assertEquals(2, historyManager.getHistory().size(), "Количество записей в истории: 2");
+        assertEquals(history, historyManager.getHistory(), "Количество записей в истории: 2");
     }
 }

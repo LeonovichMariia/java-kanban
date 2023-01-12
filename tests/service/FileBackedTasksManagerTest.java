@@ -5,10 +5,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.kanbanCore.entity.Epic;
 import ru.yandex.practicum.kanbanCore.entity.Status;
+import ru.yandex.practicum.kanbanCore.entity.Subtask;
+import ru.yandex.practicum.kanbanCore.entity.Task;
 import ru.yandex.practicum.kanbanCore.exceptions.ManagerLoadException;
 import ru.yandex.practicum.kanbanCore.service.FileBackedTasksManager;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,7 +40,8 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
     @Test
     public void shouldSaveEmptyList() { // Пустой список задач.
         taskManager = new FileBackedTasksManager(new File("resources/emptyFile"));
-        Assertions.assertEquals(taskManager.getTasks().size(), 0);
+        List<Task> tasks = new ArrayList<>();
+        assertEquals(taskManager.getTasks(), tasks);
         taskManager.save();
         File file = new File("resources/emptyFile");
         assertNotEquals(0, file.length(), "Пустой список задач");
@@ -48,13 +53,16 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
         Epic epic = new Epic(taskManager.generateId(), Status.NEW, "Epic description", "Epic name");
         taskManager.addEpic(epic);
         FileBackedTasksManager.loadFromFile(new File("resources/emptyFile"));
-        Assertions.assertEquals(taskManager.getEpics().size(), 1);
-        Assertions.assertEquals(taskManager.getSubtasksOfEpic(epic).size(), 0);
+        List<Epic> epics = new ArrayList<>();
+        epics.add(epic);
+        List<Subtask> subtasks = new ArrayList<>();
+        assertEquals(taskManager.getEpics(), epics);
+        assertEquals(taskManager.getSubtasksOfEpic(epic), subtasks);
     }
 
     @Test
     void shouldLoadWithEmptyHistoryList() { // Пустой список истории.
         FileBackedTasksManager.loadFromFile(new File("resources/emptyHistory"));
-        Assertions.assertTrue(taskManager.getHistory().isEmpty());
+        assertTrue(taskManager.getHistory().isEmpty());
     }
 }

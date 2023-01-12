@@ -52,7 +52,10 @@ public interface TaskManager {
     void updateSubtask(Subtask updatedSubtask);
 
     List<Task> getPrioritizedTasks();
+
     void clearPrioritizedTask();
+
     void clearAllTasks();
+
     boolean isCrossing(Task task);
 }

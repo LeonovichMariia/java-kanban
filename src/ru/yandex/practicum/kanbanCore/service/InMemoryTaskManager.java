@@ -1,9 +1,6 @@
 package ru.yandex.practicum.kanbanCore.service;
 
-import ru.yandex.practicum.kanbanCore.entity.Epic;
-import ru.yandex.practicum.kanbanCore.entity.Status;
-import ru.yandex.practicum.kanbanCore.entity.Subtask;
-import ru.yandex.practicum.kanbanCore.entity.Task;
+import ru.yandex.practicum.kanbanCore.entity.*;
 
 import java.util.*;
 
@@ -13,7 +10,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected final Map<Integer, Epic> epics = new HashMap<>();
     protected final HistoryManager historyManager = Managers.getDefaultHistory();
     private int idGenerator = 0;
-    public TreeSet<Task> prioritizedTaskSet = new TreeSet<>(Comparator.nullsLast(Comparator.comparing(Task::getStartTime)).
+    private final TreeSet<Task> prioritizedTaskSet = new TreeSet<>(Comparator.nullsLast(Comparator.comparing(Task::getStartTime)).
             thenComparing(Task::getId));
 
     @Override
@@ -72,6 +69,8 @@ public class InMemoryTaskManager implements TaskManager {
     public void clearTasks() {
         for (Task task : tasks.values()) {
             historyManager.remove(task.getId());
+            prioritizedTaskSet.remove(task);
+
         }
         tasks.clear();
     }
@@ -80,6 +79,8 @@ public class InMemoryTaskManager implements TaskManager {
     public void clearSubtasks() {
         for (Subtask subtask : subtasks.values()) {
             historyManager.remove(subtask.getId());
+            prioritizedTaskSet.remove(subtask);
+
         }
         subtasks.clear();
         for (Epic epic : epics.values()) {
@@ -93,6 +94,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void clearEpics() {
         for (Subtask subtask : subtasks.values()) {
             historyManager.remove(subtask.getId());
+            prioritizedTaskSet.remove(subtask);
         }
         subtasks.clear();
         for (Epic epic : epics.values()) {
@@ -108,6 +110,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task findTaskById(int id) {
+        if (id < 0) {
+            throw new IllegalArgumentException("Некорректный ввод id");
+        }
         Task task = tasks.get(id);
         historyManager.addToHistory(task);
         return task;
@@ -115,6 +120,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Subtask findSubtaskById(int id) {
+        if (id < 0) {
+            throw new IllegalArgumentException("Некорректный ввод id");
+        }
         Subtask subtask = subtasks.get(id);
         historyManager.addToHistory(subtask);
         return subtask;
@@ -122,6 +130,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Epic findEpicById(int id) {
+        if (id < 0) {
+            throw new IllegalArgumentException("Некорректный ввод id");
+        }
         Epic epic = epics.get(id);
         historyManager.addToHistory(epic);
         return epic;
@@ -129,23 +140,44 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeTaskById(int id) {
-        tasks.remove(id);
-        historyManager.remove(id);
+        if (id < 0) {
+            throw new IllegalArgumentException("Некорректный ввод id");
+        }
+        if (tasks.get(id) != null) {
+            prioritizedTaskSet.remove(tasks.get(id));
+            tasks.remove(id);
+            historyManager.remove(id);
+        } else {
+            System.out.println("Задача с таким id не найдена");
+        }
+        System.out.println("Задача удалена");
     }
 
     @Override
     public void removeSubtaskById(int id) {
-        subtasks.remove(id);
-        historyManager.remove(id);
-        for (Epic epic : epics.values()) {
-            epic.getSubtasks().removeIf(subtask -> subtask.getId() == id);
-            historyManager.remove(id);
-            updateEpicStatus(epic);
+        if (id < 0) {
+            throw new IllegalArgumentException("Некорректный ввод id");
         }
+        if (subtasks.get(id) != null) {
+            prioritizedTaskSet.remove(subtasks.get(id));
+            subtasks.remove(id);
+            historyManager.remove(id);
+            for (Epic epic : epics.values()) {
+                epic.getSubtasks().removeIf(subtask -> subtask.getId() == id);
+                historyManager.remove(id);
+                updateEpicStatus(epic);
+            }
+        } else {
+            System.out.println("Подзадача с таким id не найдена");
+        }
+        System.out.println("Подзадача удалена");
     }
 
     @Override
     public void removeEpicById(int id) {
+        if (id < 0) {
+            throw new IllegalArgumentException("Некорректный ввод id");
+        }
         Epic epic = epics.get(id);
         if (epic != null) {
             for (Subtask subtask : epic.getSubtasks()) {
@@ -162,6 +194,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void addTask(Task task) {
         if (task != null) {
+            if (task.getId() < 0) {
+                throw new IllegalArgumentException("Некорректный ввод id");
+            }
             if (isCrossing(task)) {
                 System.out.println("Пересечение задач! " + task);
                 return;
@@ -195,6 +230,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void addSubtask(Subtask subtask) {
         if (subtask != null) {
+            if (subtask.getId() < 0) {
+                throw new IllegalArgumentException("Некорректный ввод id");
+            }
             if (isCrossing(subtask)) {
                 System.out.println("Пересечение задач! " + subtask);
                 return;
@@ -217,6 +255,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void addEpic(Epic epic) {
         if (epic != null) {
+            if (epic.getId() < 0) {
+                throw new IllegalArgumentException("Некорректный ввод id");
+            }
             epics.put(epic.getId(), epic);
         } else {
             System.out.println("Эпик не найден.");
@@ -226,6 +267,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateTask(Task updatedTask) {
         if (updatedTask != null) {
+            if (updatedTask.getId() < 0) {
+                throw new IllegalArgumentException("Некорректный ввод id");
+            }
             if (isCrossing(updatedTask)) {
                 System.out.println("Пересечение задач! " + updatedTask);
                 return;
@@ -248,6 +292,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateEpic(Epic updatedEpic) {
         if (updatedEpic != null) {
+            if (updatedEpic.getId() < 0) {
+                throw new IllegalArgumentException("Некорректный ввод id");
+            }
             Epic originalEpic = epics.get(updatedEpic.getId());
             if (originalEpic != null) {
                 originalEpic.setDescription(updatedEpic.getDescription());
@@ -265,6 +312,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubtask(Subtask updatedSubtask) {
         if (updatedSubtask != null) {
+            if (updatedSubtask.getId() < 0) {
+                throw new IllegalArgumentException("Некорректный ввод id");
+            }
             if (isCrossing(updatedSubtask)) {
                 System.out.println("Пересечение задач! " + updatedSubtask);
                 return;

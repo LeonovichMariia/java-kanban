@@ -1,6 +1,5 @@
 package ru.yandex.practicum.kanbanCore.entity;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -38,20 +37,25 @@ public class Epic extends Task {
     public LocalDateTime getEndTime() {
         Subtask subtask = subtasks.stream().max(Comparator.comparing(Task::getEndTime)).orElse(null);
         if (subtask != null) {
-            int subtaskDuration = subtask.getDuration();
-            return subtask.getEndTime().plusHours(subtaskDuration / 60);
+            ;
+            return subtask.getEndTime();
         }
         return null;
     }
 
     @Override
     public int getDuration() {
-        LocalDateTime endTime = getEndTime();
-        LocalDateTime startTime = getStartTime();
-        if (startTime == null || endTime == null) {
-            return 0;
+        boolean haveNoSubtask = getSubtasks().isEmpty();
+        int duration = 0;
+        if (haveNoSubtask) {
+            setDuration(0);
+        } else {
+            ArrayList<Subtask> subtasks = getSubtasks();
+            for (Subtask subtask : subtasks) {
+                int subtaskDuration = subtask.getDuration();
+                duration += subtaskDuration;
+            }
         }
-
-        return (int) Duration.between(startTime, endTime).toMinutes();
+        return duration;
     }
 }

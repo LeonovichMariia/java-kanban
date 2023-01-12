@@ -1,7 +1,7 @@
 id,type,name,status,description,startTime,duration,epic
 0,TASK,Book,NEW,Read the book,2022-12-31T15:00,20
 1,TASK,Java,NEW,Java learning,2022-12-31T15:40,20
-2,EPIC,Renovation,IN_PROGRESS,Make a renovation at home,null,0
+2,EPIC,Renovation,IN_PROGRESS,Make a renovation at home,2022-12-31T16:20,40
 4,SUBTASK,Kitchen,NEW,Change wallpaper,2022-12-31T16:20,20,2
 5,SUBTASK,Bathroom,IN_PROGRESS,Hang a shelf,2022-12-31T16:50,20,2
 
