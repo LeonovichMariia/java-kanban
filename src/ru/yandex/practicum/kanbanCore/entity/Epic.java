@@ -3,7 +3,6 @@ package ru.yandex.practicum.kanbanCore.entity;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Objects;
 
 public class Epic extends Task {
     private ArrayList<Subtask> subtasks = new ArrayList<>();
