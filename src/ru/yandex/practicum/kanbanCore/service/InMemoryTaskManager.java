@@ -78,7 +78,6 @@ public class InMemoryTaskManager implements TaskManager {
         for (Task task : tasks.values()) {
             historyManager.remove(task.getId());
             prioritizedTaskSet.remove(task);
-
         }
         if (!tasks.isEmpty()) {
             tasks.clear();
@@ -92,7 +91,6 @@ public class InMemoryTaskManager implements TaskManager {
         for (Subtask subtask : subtasks.values()) {
             historyManager.remove(subtask.getId());
             prioritizedTaskSet.remove(subtask);
-
         }
         if (!subtasks.isEmpty()) {
             subtasks.clear();
