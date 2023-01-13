@@ -133,7 +133,11 @@ public class InMemoryTaskManager implements TaskManager {
         } else if (!tasks.isEmpty()) {
             Task task = tasks.get(id);
             historyManager.addToHistory(task);
-            return task;
+            if (task != null ) {
+                return task;
+            } else {
+                throw new IllegalArgumentException("Задача с таким id не найдена");
+            }
         } else {
             throw new IllegalArgumentException("Список задач пуст");
         }
@@ -146,7 +150,11 @@ public class InMemoryTaskManager implements TaskManager {
         } else if (!subtasks.isEmpty()) {
             Subtask subtask = subtasks.get(id);
             historyManager.addToHistory(subtask);
-            return subtask;
+            if (subtask != null) {
+                return subtask;
+            } else {
+                throw new IllegalArgumentException("Подзадача с таким id не найдена");
+            }
         } else {
             throw new IllegalArgumentException("Список подзадач пуст");
         }
@@ -159,7 +167,11 @@ public class InMemoryTaskManager implements TaskManager {
         } else if (!epics.isEmpty()) {
             Epic epic = epics.get(id);
             historyManager.addToHistory(epic);
-            return epic;
+            if (epic != null) {
+                return epic;
+            }  else {
+                throw new IllegalArgumentException("Эпик с таким id не найден");
+            }
         } else {
             throw new IllegalArgumentException("Список эпиков пуст");
         }
@@ -176,7 +188,7 @@ public class InMemoryTaskManager implements TaskManager {
                 tasks.remove(id);
                 historyManager.remove(id);
             } else {
-                System.out.println("Задача с таким id не найдена");
+                throw new IllegalArgumentException("Задача с таким id не найдена");
             }
             System.out.println("Задача удалена");
         } else {
@@ -201,7 +213,7 @@ public class InMemoryTaskManager implements TaskManager {
                     updateEpicStatus(epic);
                 }
             } else {
-                System.out.println("Подзадача с таким id не найдена");
+                throw new IllegalArgumentException("Подзадача с таким id не найдена");
             }
             System.out.println("Подзадача удалена");
         } else {
@@ -224,7 +236,7 @@ public class InMemoryTaskManager implements TaskManager {
                 epics.remove(id);
                 historyManager.remove(id);
             } else {
-                System.out.println("Эпик не найден.");
+                throw new IllegalArgumentException("Эпик с таким id не найден.");
             }
         } else {
             throw new IllegalArgumentException("Удаление по id невозможно, список эпиков пуст");
@@ -325,7 +337,7 @@ public class InMemoryTaskManager implements TaskManager {
                     originalTask.setStartTime(updatedTask.getStartTime());
                     originalTask.setDuration(updatedTask.getDuration());
                 } else {
-                    System.out.println("Задача не найдена.");
+                    throw new IllegalArgumentException("Задача не найдена.");
                 }
             } else {
                 System.out.println("Обновленная задача не найдена.");
@@ -349,7 +361,7 @@ public class InMemoryTaskManager implements TaskManager {
                     originalEpic.setSubtasks(updatedEpic.getSubtasks());
                     updateEpicStatus(updatedEpic);
                 } else {
-                    System.out.println("Эпик не найден.");
+                    throw new IllegalArgumentException("Эпик не найден.");
                 }
             } else {
                 System.out.println("Обновленный эпик не найден.");
@@ -395,7 +407,7 @@ public class InMemoryTaskManager implements TaskManager {
                     }
                     originalSubtask.setEpicId(updatedSubtask.getEpicId());
                 } else {
-                    System.out.println("Подзадача не найдена.");
+                    throw new IllegalArgumentException("Подзадача не найдена.");
                 }
             } else {
                 System.out.println("Обновленная подзадача не найдена.");

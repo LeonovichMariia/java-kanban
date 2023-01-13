@@ -26,7 +26,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldReturnEpicStatus() {
+    void shouldReturnEpicStatus() { // расчет статуса эпика в различных ситуациях
         Epic epic0 = new Epic(taskManager.generateId(), Status.NEW, "Epic0 description", "Epic0 name");
         Epic epic = new Epic(taskManager.generateId(), epic0.getStatus(), "Epic description", "Epic name");
         Epic epic1 = new Epic(taskManager.generateId(), epic0.getStatus(), "Epic1 description", "Epic1 name");
@@ -463,33 +463,41 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldNotFindAnyTasksByIdWhenIncorrectId() {
+        Task task = new Task(3, Status.NEW, "Task description", "Task name",
+                LocalDateTime.of(2022, 12, 31, 15, 0), 20);
+        Epic epic1 = new Epic(5, Status.NEW, "Epic1 description", "Epic1 name");
+        Subtask subtask11 = new Subtask(8, Status.NEW, "Subtask11 description",
+                "Subtask11 name", epic1.getId(), LocalDateTime.of(2022, 12, 31, 15, 40), 20);
+        taskManager.addTask(task);
+        taskManager.addSubtask(subtask11);
+        taskManager.addEpic(epic1);
         final IllegalArgumentException exceptionT = assertThrows(
                 IllegalArgumentException.class,
                 new Executable() {
                     @Override
                     public void execute() {
-                        taskManager.findTaskById(-1);
+                        taskManager.findTaskById(0);
                     }
                 });
-        assertEquals("Некорректный ввод id", exceptionT.getMessage());
+        assertEquals("Задача с таким id не найдена", exceptionT.getMessage());
         final IllegalArgumentException exceptionE = assertThrows(
                 IllegalArgumentException.class,
                 new Executable() {
                     @Override
                     public void execute() {
-                        taskManager.findEpicById(-1);
+                        taskManager.findEpicById(0);
                     }
                 });
-        assertEquals("Некорректный ввод id", exceptionE.getMessage());
+        assertEquals("Эпик с таким id не найден", exceptionE.getMessage());
         final IllegalArgumentException exceptionS = assertThrows(
                 IllegalArgumentException.class,
                 new Executable() {
                     @Override
                     public void execute() {
-                        taskManager.findSubtaskById(-1);
+                        taskManager.findSubtaskById(0);
                     }
                 });
-        assertEquals("Некорректный ввод id", exceptionS.getMessage());
+        assertEquals("Подзадача с таким id не найдена", exceptionS.getMessage());
     }
 
     @Test
@@ -528,10 +536,12 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldNotUpdateTasksWhenIncorrectId() {
+        Task task0 = new Task(taskManager.generateId(), Status.NEW, "Task0 description", "Task0 name",
+                LocalDateTime.of(2022, 12, 31, 10, 0), 20);
+        taskManager.addTask(task0);
         Task task = new Task(taskManager.generateId(), Status.NEW, "Task description", "Task name",
                 LocalDateTime.of(2022, 12, 31, 15, 0), 20);
-        taskManager.addTask(task);
-        Task updatedTask = new Task(-1, task.getStatus(), task.getDescription(), task.getName(), task.getStartTime(),
+        Task updatedTask = new Task(task.getId(), task.getStatus(), task.getDescription(), task.getName(), task.getStartTime(),
                 30);
         final IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -541,7 +551,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                         taskManager.updateTask(updatedTask);
                     }
                 });
-        assertEquals("Некорректный ввод id", exception.getMessage());
+        assertEquals("Задача не найдена.", exception.getMessage());
     }
 
     @Test
@@ -574,9 +584,10 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldNotUpdateEpicsWhenIncorrectId() {
+        Epic epic0 = new Epic(taskManager.generateId(), Status.NEW, "Epic0 description", "Epic0 name");
+        taskManager.addEpic(epic0);
         Epic epic1 = new Epic(taskManager.generateId(), Status.NEW, "Epic1 description", "Epic1 name");
-        taskManager.addEpic(epic1);
-        Epic updatedEpic1 = new Epic(-1, Status.DONE, epic1.getDescription(), epic1.getName());
+        Epic updatedEpic1 = new Epic(epic1.getId(), Status.DONE, epic1.getDescription(), epic1.getName());
         final IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 new Executable() {
@@ -585,7 +596,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                         taskManager.updateEpic(updatedEpic1);
                     }
                 });
-        assertEquals("Некорректный ввод id", exception.getMessage());
+        assertEquals("Эпик не найден.", exception.getMessage());
     }
 
     @Test
@@ -612,10 +623,12 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     void shouldNotUpdateSubtasksWhenIncorrectId() {
         Epic epic2 = new Epic(taskManager.generateId(), Status.NEW, "Epic1 description", "Epic1 name");
         taskManager.addEpic(epic2);
+        Subtask subtask0 = new Subtask(taskManager.generateId(), Status.NEW, "Subtask0 description",
+                "Subtask0 name", epic2.getId(), LocalDateTime.of(2022, 12, 31, 10, 40), 20);
+        taskManager.addSubtask(subtask0);
         Subtask subtask11 = new Subtask(taskManager.generateId(), Status.NEW, "Subtask11 description",
                 "Subtask11 name", epic2.getId(), LocalDateTime.of(2022, 12, 31, 15, 40), 20);
-        taskManager.addSubtask(subtask11);
-        Subtask updatedSubtask11 = new Subtask(-1, Status.DONE, subtask11.getDescription(),
+        Subtask updatedSubtask11 = new Subtask(subtask11.getId(), Status.DONE, "Updated subtask11 description",
                 subtask11.getName(), epic2.getId(), subtask11.getStartTime(), 20);
         final IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -625,7 +638,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                         taskManager.updateSubtask(updatedSubtask11);
                     }
                 });
-        assertEquals("Некорректный ввод id", exception.getMessage());
+        assertEquals("Подзадача не найдена.", exception.getMessage());
     }
 
     @Test
@@ -655,7 +668,6 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.addTask(task);
         taskManager.addTask(task2);
         taskManager.removeTaskById(task.getId());
-        taskManager.removeTaskById(5);
         assertFalse(taskManager.getTasks().contains(task));
         assertTrue(taskManager.getTasks().contains(task2));
     }
@@ -677,17 +689,11 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldNotRemoveTaskByIdWhenIncorrectId() {
-        Task task = new Task(-5, Status.NEW, "Task description", "Task name",
+        Task task0 = new Task(taskManager.generateId(), Status.NEW, "Task description", "Task name",
                 LocalDateTime.of(2022, 12, 31, 15, 0), 20);
-        final IllegalArgumentException exceptionT = assertThrows(
-                IllegalArgumentException.class,
-                new Executable() {
-                    @Override
-                    public void execute() {
-                        taskManager.addTask(task);
-                    }
-                });
-        assertEquals("Некорректный ввод id", exceptionT.getMessage());
+        taskManager.addTask(task0);
+        Task task = new Task(taskManager.generateId(), Status.NEW, "Task description", "Task name",
+                LocalDateTime.of(2022, 12, 31, 15, 0), 20);
         final IllegalArgumentException exceptionTR = assertThrows(
                 IllegalArgumentException.class,
                 new Executable() {
@@ -696,7 +702,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                         taskManager.removeTaskById(task.getId());
                     }
                 });
-        assertEquals("Удаление по id невозможно, список задач пуст", exceptionTR.getMessage());
+        assertEquals("Задача с таким id не найдена", exceptionTR.getMessage());
     }
 
     @Test
@@ -726,16 +732,9 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldNotRemoveEpicByIdWhenIncorrectId() {
-        Epic epic2 = new Epic(-5, Status.NEW, "Epic1 description", "Epic1 name");
-        final IllegalArgumentException exceptionT = assertThrows(
-                IllegalArgumentException.class,
-                new Executable() {
-                    @Override
-                    public void execute() {
-                        taskManager.addEpic(epic2);
-                    }
-                });
-        assertEquals("Некорректный ввод id", exceptionT.getMessage());
+        Epic epic0 = new Epic(taskManager.generateId(), Status.NEW, "Epic1 description", "Epic1 name");
+        taskManager.addEpic(epic0);
+        Epic epic2 = new Epic(taskManager.generateId(), Status.NEW, "Epic1 description", "Epic1 name");
         final IllegalArgumentException exceptionER = assertThrows(
                 IllegalArgumentException.class,
                 new Executable() {
@@ -744,7 +743,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                         taskManager.removeEpicById(epic2.getId());
                     }
                 });
-        assertEquals("Удаление по id невозможно, список эпиков пуст", exceptionER.getMessage());
+        assertEquals("Эпик с таким id не найден.", exceptionER.getMessage());
     }
 
     @Test
@@ -781,17 +780,12 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     void shouldNotRemoveSubtaskByIdWhenIncorrectId() {
         Epic epic1 = new Epic(taskManager.generateId(), Status.NEW, "Epic1 description", "Epic1 name");
-        Subtask subtask11 = new Subtask(-5, Status.DONE, "Subtask11 description",
+        taskManager.addEpic(epic1);
+        Subtask subtask0 = new Subtask(taskManager.generateId(), Status.DONE, "Subtask11 description",
                 "Subtask11 name", epic1.getId(), LocalDateTime.of(2022, 12, 31, 15, 40), 20);
-        final IllegalArgumentException exceptionT = assertThrows(
-                IllegalArgumentException.class,
-                new Executable() {
-                    @Override
-                    public void execute() {
-                        taskManager.addSubtask(subtask11);
-                    }
-                });
-        assertEquals("Некорректный ввод id", exceptionT.getMessage());
+        taskManager.addSubtask(subtask0);
+        Subtask subtask11 = new Subtask(taskManager.generateId(), Status.DONE, "Subtask11 description",
+                "Subtask11 name", epic1.getId(), LocalDateTime.of(2022, 12, 31, 15, 40), 20);
         final IllegalArgumentException exceptionER = assertThrows(
                 IllegalArgumentException.class,
                 new Executable() {
@@ -800,7 +794,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                         taskManager.removeSubtaskById(subtask11.getId());
                     }
                 });
-        assertEquals("Удаление по id невозможно, список подзадач пуст", exceptionER.getMessage());
+        assertEquals("Подзадача с таким id не найдена", exceptionER.getMessage());
     }
 
     @Test
@@ -828,33 +822,41 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldNotGetHistoryWhenIncorrectId() {
+        Task task = new Task(3, Status.NEW, "Task description", "Task name",
+                LocalDateTime.of(2022, 12, 31, 15, 0), 20);
+        Epic epic1 = new Epic(5, Status.NEW, "Epic1 description", "Epic1 name");
+        Subtask subtask11 = new Subtask(8, Status.NEW, "Subtask11 description",
+                "Subtask11 name", epic1.getId(), LocalDateTime.of(2022, 12, 31, 15, 40), 20);
+        taskManager.addTask(task);
+        taskManager.addSubtask(subtask11);
+        taskManager.addEpic(epic1);
         final IllegalArgumentException exceptionT = assertThrows(
                 IllegalArgumentException.class,
                 new Executable() {
                     @Override
                     public void execute() {
-                        taskManager.findTaskById(-1);
+                        taskManager.findTaskById(0);
                     }
                 });
-        assertEquals("Некорректный ввод id", exceptionT.getMessage());
+        assertEquals("Задача с таким id не найдена", exceptionT.getMessage());
         final IllegalArgumentException exceptionE = assertThrows(
                 IllegalArgumentException.class,
                 new Executable() {
                     @Override
                     public void execute() {
-                        taskManager.findEpicById(-1);
+                        taskManager.findEpicById(0);
                     }
                 });
-        assertEquals("Некорректный ввод id", exceptionE.getMessage());
+        assertEquals("Эпик с таким id не найден", exceptionE.getMessage());
         final IllegalArgumentException exceptionS = assertThrows(
                 IllegalArgumentException.class,
                 new Executable() {
                     @Override
                     public void execute() {
-                        taskManager.findSubtaskById(-1);
+                        taskManager.findSubtaskById(0);
                     }
                 });
-        assertEquals("Некорректный ввод id", exceptionS.getMessage());
+        assertEquals("Подзадача с таким id не найдена", exceptionS.getMessage());
         List<Task> history = new ArrayList<>();
         assertEquals(0, taskManager.getHistory().size());
         assertEquals(history, taskManager.getHistory());
@@ -1208,7 +1210,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldBeIdZeroWhenEmptyList() {
+    void shouldBeIdZeroNorm() {
         assertEquals(0, taskManager.generateId());
     }
 
