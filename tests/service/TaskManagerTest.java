@@ -505,7 +505,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         updatedTask.setName("New name");
         updatedTask.setStartTime(LocalDateTime.of(2022, 12, 31, 15, 0).plusDays(5));
         taskManager.updateTask(updatedTask);
-        assertEquals(updatedTask, task);
+        Task expectedTask = taskManager.findTaskById(task.getId());
+        assertEquals(task, expectedTask, "Задачи не совпадают");
     }
 
     @Test
@@ -552,7 +553,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         updatedEpic1.setStatus(Status.DONE);
         updatedEpic1.setDescription("New description");
         taskManager.updateEpic(updatedEpic1);
-        assertEquals(updatedEpic1, epic1);
+        Epic expectedEpic = taskManager.findEpicById(epic1.getId());
+        assertEquals(epic1, expectedEpic, "Эпики не совпадают");
     }
 
     @Test
@@ -602,7 +604,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         updatedSubtask11.setName("New name");
         updatedSubtask11.setStartTime(LocalDateTime.of(2022, 12, 31, 15, 0).plusDays(5));
         taskManager.updateSubtask(updatedSubtask11);
-        assertEquals(updatedSubtask11, subtask11);
+        Subtask expectedSubtask = taskManager.findSubtaskById(subtask11.getId());
+        assertEquals(subtask11, expectedSubtask, "Подзадачи не совпадают");
     }
 
     @Test
