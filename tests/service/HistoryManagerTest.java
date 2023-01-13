@@ -69,7 +69,6 @@ class HistoryManagerTest {
         taskHistory.add(task2);
         taskHistory.add(task3);
         taskHistory.remove(task);
-
         assertEquals(taskHistory, historyManager.getHistory(), "Удалена первая задача");
     }
 
@@ -84,7 +83,6 @@ class HistoryManagerTest {
         taskHistory.add(task2);
         taskHistory.add(task3);
         taskHistory.remove(task2);
-
         assertEquals(taskHistory, historyManager.getHistory(), "Удалена вторая задача");
     }
 
@@ -99,7 +97,6 @@ class HistoryManagerTest {
         taskHistory.add(task2);
         taskHistory.add(task3);
         taskHistory.remove(task3);
-
         assertEquals(taskHistory, historyManager.getHistory(), "Удалена последняя задача");
     }
 

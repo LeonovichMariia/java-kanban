@@ -21,7 +21,7 @@ public class Main {
 //        Epic epic = new Epic(fileBackedTasksManager.generateId(), Status.IN_PROGRESS, "Make a renovation at home",
 //                "Renovation");
 //        Subtask subtask = new Subtask(fileBackedTasksManager.generateId(), Status.DONE, "Change flooring",
-//                "Bedroom", epic.getId(), LocalDateTime.of(2022,12,31,15,00), 20);
+//                "Bedroom", epic.getId(), LocalDateTime.of(2022,12,31,16,0), 20);
 //        Subtask subtask2 = new Subtask(fileBackedTasksManager.generateId(), Status.NEW, "Change wallpaper",
 //                "Kitchen", epic.getId(), LocalDateTime.of(2022,12,31,16,20), 20);
 //        Subtask subtask3 = new Subtask(fileBackedTasksManager.generateId(), Status.IN_PROGRESS, "Hang a shelf",
@@ -39,10 +39,22 @@ public class Main {
 //        fileBackedTasksManager.findSubtaskById(subtask2.getId());
 //        fileBackedTasksManager.findSubtaskById(subtask.getId());
 //        System.out.println(fileBackedTasksManager.getHistory());
-        try {
-            FileBackedTasksManager fb2 = FileBackedTasksManager.loadFromFile(new File("resources/tasks"));
-        } catch (ManagerLoadException e) {
-            System.out.println(e.getMessage());
-        }
+//        try {
+//            FileBackedTasksManager fb2 = FileBackedTasksManager.loadFromFile(new File("resources/tasks"));
+//        } catch (ManagerLoadException e) {
+//            System.out.println(e.getMessage());
+//        }
+//        InMemoryTaskManager manager = new InMemoryTaskManager();
+//        Epic epic = new Epic(manager.generateId(), Status.NEW, "новый эпик 1", "описание эпика 1");
+//        manager.addEpic(epic);
+//        Subtask subtask1 = new Subtask(manager.generateId(), Status.NEW,"новая подзадача 1", "описание подзадачи 1", epic.getId(),
+//                LocalDateTime.of(2022, 12, 30, 0, 30).plusDays(2), 15);
+//        manager.addSubtask(subtask1);
+//        Subtask subtask2 = new Subtask(manager.generateId(), Status.NEW,"новая подзадача 2", "описание подзадачи 2",epic.getId(),
+//                LocalDateTime.of(2022, 12, 30, 0, 30).plusDays(2), 30);
+//        manager.addSubtask(subtask2);
+//        System.out.println(subtask1.getEndTime() + "," + subtask2.getEndTime());
+//        System.out.println(subtask1.getStartTime() + "," + subtask2.getStartTime());
+//        System.out.println(subtask2.getEndTime().isAfter(subtask1.getEndTime()));
     }
 }

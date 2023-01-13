@@ -19,15 +19,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager> {
     @BeforeEach
     public void beforeEach() {
-        taskManager = new FileBackedTasksManager(new File("resources/emptyFile"));
+        taskManager = new FileBackedTasksManager(new File("resources/tasks"));
     }
 
     @Test // Пустой список задач.
     public void shouldThrowExceptionWhenLoadFromEmptyFile() {
         taskManager = new FileBackedTasksManager(new File("resources/emptyFile"));
-        taskManager.clearSubtasks();
-        taskManager.clearEpics();
-        taskManager.clearTasks();
         ManagerLoadException ex = Assertions.assertThrows(
                 ManagerLoadException.class,
                 () -> {

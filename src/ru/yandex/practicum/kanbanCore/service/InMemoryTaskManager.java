@@ -55,14 +55,22 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public void clearPrioritizedTask() {
-        prioritizedTaskSet.clear();
+        if (!prioritizedTaskSet.isEmpty()) {
+            prioritizedTaskSet.clear();
+        } else {
+            throw new IllegalArgumentException("Список задач в порядке приоритета пуст: ничего не удалено!");
+        }
     }
 
     public void clearAllTasks() {
-        tasks.clear();
-        subtasks.clear();
-        epics.clear();
-        prioritizedTaskSet.clear();
+        if ((!tasks.isEmpty()) && (!subtasks.isEmpty()) && (!epics.isEmpty()) && (!prioritizedTaskSet.isEmpty())) {
+            tasks.clear();
+            subtasks.clear();
+            epics.clear();
+            prioritizedTaskSet.clear();
+        } else {
+            throw new IllegalArgumentException("Списки задач пусты: ничего не удалено!");
+        }
     }
 
     @Override
@@ -72,7 +80,11 @@ public class InMemoryTaskManager implements TaskManager {
             prioritizedTaskSet.remove(task);
 
         }
-        tasks.clear();
+        if (!tasks.isEmpty()) {
+            tasks.clear();
+        } else {
+            throw new IllegalArgumentException("Список задач пуст: ничего не удалено!");
+        }
     }
 
     @Override
@@ -82,11 +94,15 @@ public class InMemoryTaskManager implements TaskManager {
             prioritizedTaskSet.remove(subtask);
 
         }
-        subtasks.clear();
-        for (Epic epic : epics.values()) {
-            epic.getSubtasks().clear();
-            historyManager.remove(epic.getId());
-            updateEpicStatus(epic);
+        if (!subtasks.isEmpty()) {
+            subtasks.clear();
+            for (Epic epic : epics.values()) {
+                epic.getSubtasks().clear();
+                historyManager.remove(epic.getId());
+                updateEpicStatus(epic);
+            }
+        } else {
+            throw new IllegalArgumentException("Список подзадач пуст: ничего не удалено!");
         }
     }
 
@@ -100,7 +116,11 @@ public class InMemoryTaskManager implements TaskManager {
         for (Epic epic : epics.values()) {
             historyManager.remove(epic.getId());
         }
-        epics.clear();
+        if (!epics.isEmpty()) {
+            epics.clear();
+        } else {
+            throw new IllegalArgumentException("Список эпиков пуст: ничего не удалено!");
+        }
     }
 
     @Override
@@ -112,92 +132,114 @@ public class InMemoryTaskManager implements TaskManager {
     public Task findTaskById(int id) {
         if (id < 0) {
             throw new IllegalArgumentException("Некорректный ввод id");
+        } else if (!tasks.isEmpty()) {
+            Task task = tasks.get(id);
+            historyManager.addToHistory(task);
+            return task;
+        } else {
+            throw new IllegalArgumentException("Список задач пуст");
         }
-        Task task = tasks.get(id);
-        historyManager.addToHistory(task);
-        return task;
     }
 
     @Override
     public Subtask findSubtaskById(int id) {
         if (id < 0) {
             throw new IllegalArgumentException("Некорректный ввод id");
+        } else if (!subtasks.isEmpty()) {
+            Subtask subtask = subtasks.get(id);
+            historyManager.addToHistory(subtask);
+            return subtask;
+        } else {
+            throw new IllegalArgumentException("Список подзадач пуст");
         }
-        Subtask subtask = subtasks.get(id);
-        historyManager.addToHistory(subtask);
-        return subtask;
     }
 
     @Override
     public Epic findEpicById(int id) {
         if (id < 0) {
             throw new IllegalArgumentException("Некорректный ввод id");
+        } else if (!epics.isEmpty()) {
+            Epic epic = epics.get(id);
+            historyManager.addToHistory(epic);
+            return epic;
+        } else {
+            throw new IllegalArgumentException("Список эпиков пуст");
         }
-        Epic epic = epics.get(id);
-        historyManager.addToHistory(epic);
-        return epic;
     }
 
     @Override
     public void removeTaskById(int id) {
-        if (id < 0) {
-            throw new IllegalArgumentException("Некорректный ввод id");
-        }
-        if (tasks.get(id) != null) {
-            prioritizedTaskSet.remove(tasks.get(id));
-            tasks.remove(id);
-            historyManager.remove(id);
+        if (!tasks.isEmpty()) {
+            if (id < 0) {
+                throw new IllegalArgumentException("Некорректный ввод id");
+            }
+            if (tasks.get(id) != null) {
+                prioritizedTaskSet.remove(tasks.get(id));
+                tasks.remove(id);
+                historyManager.remove(id);
+            } else {
+                System.out.println("Задача с таким id не найдена");
+            }
+            System.out.println("Задача удалена");
         } else {
-            System.out.println("Задача с таким id не найдена");
+            throw new IllegalArgumentException("Удаление по id невозможно, список задач пуст");
         }
-        System.out.println("Задача удалена");
     }
+
 
     @Override
     public void removeSubtaskById(int id) {
-        if (id < 0) {
-            throw new IllegalArgumentException("Некорректный ввод id");
-        }
-        if (subtasks.get(id) != null) {
-            prioritizedTaskSet.remove(subtasks.get(id));
-            subtasks.remove(id);
-            historyManager.remove(id);
-            for (Epic epic : epics.values()) {
-                epic.getSubtasks().removeIf(subtask -> subtask.getId() == id);
-                historyManager.remove(id);
-                updateEpicStatus(epic);
+        if (!subtasks.isEmpty()) {
+            if (id < 0) {
+                throw new IllegalArgumentException("Некорректный ввод id");
             }
+            if (subtasks.get(id) != null) {
+                prioritizedTaskSet.remove(subtasks.get(id));
+                subtasks.remove(id);
+                historyManager.remove(id);
+                for (Epic epic : epics.values()) {
+                    epic.getSubtasks().removeIf(subtask -> subtask.getId() == id);
+                    historyManager.remove(id);
+                    updateEpicStatus(epic);
+                }
+            } else {
+                System.out.println("Подзадача с таким id не найдена");
+            }
+            System.out.println("Подзадача удалена");
         } else {
-            System.out.println("Подзадача с таким id не найдена");
+            throw new IllegalArgumentException("Удаление по id невозможно, список подзадач пуст");
         }
-        System.out.println("Подзадача удалена");
     }
 
     @Override
     public void removeEpicById(int id) {
-        if (id < 0) {
-            throw new IllegalArgumentException("Некорректный ввод id");
-        }
-        Epic epic = epics.get(id);
-        if (epic != null) {
-            for (Subtask subtask : epic.getSubtasks()) {
-                subtasks.remove(subtask.getId());
-                historyManager.remove(id);
+        if (!epics.isEmpty()) {
+            if (id < 0) {
+                throw new IllegalArgumentException("Некорректный ввод id");
             }
-            epics.remove(id);
-            historyManager.remove(id);
+            Epic epic = epics.get(id);
+            if (epic != null) {
+                for (Subtask subtask : epic.getSubtasks()) {
+                    subtasks.remove(subtask.getId());
+                    historyManager.remove(id);
+                }
+                epics.remove(id);
+                historyManager.remove(id);
+            } else {
+                System.out.println("Эпик не найден.");
+            }
         } else {
-            System.out.println("Эпик не найден.");
+            throw new IllegalArgumentException("Удаление по id невозможно, список эпиков пуст");
         }
     }
+
 
     @Override
     public void addTask(Task task) {
         if (task != null) {
             if (task.getId() < 0) {
                 throw new IllegalArgumentException("Некорректный ввод id");
-            }
-            if (isCrossing(task)) {
+            } else if (isCrossing(task)) {
                 System.out.println("Пересечение задач! " + task);
                 return;
             }
@@ -208,10 +250,13 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-    public boolean isCrossing(Task task) {
+    private boolean isCrossing(Task task) {
         for (Task t : prioritizedTaskSet) {
-            if (task.getStartTime().isAfter(t.getStartTime()) && task.getStartTime().isBefore(t.getEndTime())
-                    || task.getEndTime().isAfter(t.getStartTime()) && task.getEndTime().isBefore(t.getEndTime())) {
+            if (task.getStartTime().isAfter(t.getStartTime()) && task.getStartTime().isBefore(t.getEndTime())) {
+                return true;
+            } else if (task.getEndTime().isAfter(t.getStartTime()) && task.getEndTime().isBefore(t.getEndTime())) {
+                return true;
+            } else if (task.getStartTime().equals(t.getStartTime()) || task.getEndTime().equals(t.getEndTime())) {
                 return true;
             }
         }
@@ -232,8 +277,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (subtask != null) {
             if (subtask.getId() < 0) {
                 throw new IllegalArgumentException("Некорректный ввод id");
-            }
-            if (isCrossing(subtask)) {
+            } else if (isCrossing(subtask)) {
                 System.out.println("Пересечение задач! " + subtask);
                 return;
             }
@@ -266,88 +310,100 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task updatedTask) {
-        if (updatedTask != null) {
-            if (updatedTask.getId() < 0) {
-                throw new IllegalArgumentException("Некорректный ввод id");
-            }
-            if (isCrossing(updatedTask)) {
-                System.out.println("Пересечение задач! " + updatedTask);
-                return;
-            }
-            Task originalTask = tasks.get(updatedTask.getId());
-            if (originalTask != null) {
-                originalTask.setDescription(updatedTask.getDescription());
-                originalTask.setName(updatedTask.getName());
-                originalTask.setStatus(updatedTask.getStatus());
-                originalTask.setStartTime(updatedTask.getStartTime());
-                originalTask.setDuration(updatedTask.getDuration());
+        if (!tasks.isEmpty()) {
+            if (updatedTask != null) {
+                if (updatedTask.getId() < 0) {
+                    throw new IllegalArgumentException("Некорректный ввод id");
+                }
+                if (isCrossing(updatedTask)) {
+                    System.out.println("Пересечение задач! " + updatedTask);
+                    return;
+                }
+                Task originalTask = tasks.get(updatedTask.getId());
+                if (originalTask != null) {
+                    originalTask.setDescription(updatedTask.getDescription());
+                    originalTask.setName(updatedTask.getName());
+                    originalTask.setStatus(updatedTask.getStatus());
+                    originalTask.setStartTime(updatedTask.getStartTime());
+                    originalTask.setDuration(updatedTask.getDuration());
+                } else {
+                    System.out.println("Задача не найдена.");
+                }
             } else {
-                System.out.println("Задача не найдена.");
+                System.out.println("Обновленная задача не найдена.");
             }
         } else {
-            System.out.println("Обновленная задача не найдена.");
+            throw new IllegalArgumentException("Обновление невозможно: список задач пуст");
         }
     }
 
     @Override
     public void updateEpic(Epic updatedEpic) {
-        if (updatedEpic != null) {
-            if (updatedEpic.getId() < 0) {
-                throw new IllegalArgumentException("Некорректный ввод id");
-            }
-            Epic originalEpic = epics.get(updatedEpic.getId());
-            if (originalEpic != null) {
-                originalEpic.setDescription(updatedEpic.getDescription());
-                originalEpic.setName(updatedEpic.getName());
-                originalEpic.setSubtasks(updatedEpic.getSubtasks());
-                updateEpicStatus(updatedEpic);
+        if (!epics.isEmpty()) {
+            if (updatedEpic != null) {
+                if (updatedEpic.getId() < 0) {
+                    throw new IllegalArgumentException("Некорректный ввод id");
+                }
+                Epic originalEpic = epics.get(updatedEpic.getId());
+                if (originalEpic != null) {
+                    originalEpic.setDescription(updatedEpic.getDescription());
+                    originalEpic.setName(updatedEpic.getName());
+                    originalEpic.setSubtasks(updatedEpic.getSubtasks());
+                    updateEpicStatus(updatedEpic);
+                } else {
+                    System.out.println("Эпик не найден.");
+                }
             } else {
-                System.out.println("Эпик не найден.");
+                System.out.println("Обновленный эпик не найден.");
             }
         } else {
-            System.out.println("Обновленный эпик не найден.");
+            throw new IllegalArgumentException("Обновление невозможно: список эпиков пуст");
         }
     }
 
     @Override
     public void updateSubtask(Subtask updatedSubtask) {
-        if (updatedSubtask != null) {
-            if (updatedSubtask.getId() < 0) {
-                throw new IllegalArgumentException("Некорректный ввод id");
-            }
-            if (isCrossing(updatedSubtask)) {
-                System.out.println("Пересечение задач! " + updatedSubtask);
-                return;
-            }
-            Subtask originalSubtask = subtasks.get(updatedSubtask.getId());
-            if (originalSubtask != null) {
-                originalSubtask.setDescription(updatedSubtask.getDescription());
-                originalSubtask.setName(updatedSubtask.getName());
-                originalSubtask.setStatus(updatedSubtask.getStatus());
-                originalSubtask.setStartTime(updatedSubtask.getStartTime());
-                originalSubtask.setDuration(updatedSubtask.getDuration());
-                if (updatedSubtask.getEpicId() != originalSubtask.getEpicId()) {
-                    Epic updatedEpic = epics.get(updatedSubtask.getEpicId());
-                    if (updatedEpic != null) {
-                        Epic originalEpic = epics.get(originalSubtask.getEpicId());
-                        if (originalEpic != null) {
-                            originalEpic.getSubtasks().removeIf(i -> i.getId() == originalSubtask.getId());
-                            originalSubtask.setEpicId(updatedSubtask.getEpicId());
-                            updateEpicStatus(epics.get(originalEpic.getId()));
-                            updateEpicStatus(epics.get(updatedEpic.getId()));
-                        } else {
-                            System.out.println("Эпик не найден.");
-                        }
-                    } else {
-                        System.out.println("Обновленный эпик не найден.");
-                    }
+        if (!subtasks.isEmpty()) {
+            if (updatedSubtask != null) {
+                if (updatedSubtask.getId() < 0) {
+                    throw new IllegalArgumentException("Некорректный ввод id");
                 }
-                originalSubtask.setEpicId(updatedSubtask.getEpicId());
+                if (isCrossing(updatedSubtask)) {
+                    System.out.println("Пересечение задач! " + updatedSubtask);
+                    return;
+                }
+                Subtask originalSubtask = subtasks.get(updatedSubtask.getId());
+                if (originalSubtask != null) {
+                    originalSubtask.setDescription(updatedSubtask.getDescription());
+                    originalSubtask.setName(updatedSubtask.getName());
+                    originalSubtask.setStatus(updatedSubtask.getStatus());
+                    originalSubtask.setStartTime(updatedSubtask.getStartTime());
+                    originalSubtask.setDuration(updatedSubtask.getDuration());
+                    if (updatedSubtask.getEpicId() != originalSubtask.getEpicId()) {
+                        Epic updatedEpic = epics.get(updatedSubtask.getEpicId());
+                        if (updatedEpic != null) {
+                            Epic originalEpic = epics.get(originalSubtask.getEpicId());
+                            if (originalEpic != null) {
+                                originalEpic.getSubtasks().removeIf(i -> i.getId() == originalSubtask.getId());
+                                originalSubtask.setEpicId(updatedSubtask.getEpicId());
+                                updateEpicStatus(epics.get(originalEpic.getId()));
+                                updateEpicStatus(epics.get(updatedEpic.getId()));
+                            } else {
+                                System.out.println("Эпик не найден.");
+                            }
+                        } else {
+                            System.out.println("Обновленный эпик не найден.");
+                        }
+                    }
+                    originalSubtask.setEpicId(updatedSubtask.getEpicId());
+                } else {
+                    System.out.println("Подзадача не найдена.");
+                }
             } else {
-                System.out.println("Подзадача не найдена.");
+                System.out.println("Обновленная подзадача не найдена.");
             }
         } else {
-            System.out.println("Обновленная подзадача не найдена.");
+            throw new IllegalArgumentException("Обновление невозможно: список подзадач пуст");
         }
     }
 

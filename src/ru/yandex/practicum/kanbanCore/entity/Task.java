@@ -1,7 +1,6 @@
 package ru.yandex.practicum.kanbanCore.entity;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class Task {
@@ -90,7 +89,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return id + "," + taskType + "," + name+ "," + status + "," + description + "," + getStartTime() + ","
+        return id + "," + taskType + "," + name + "," + getStatus() + "," + description + "," + getStartTime() + ","
                 + getDuration();
     }
 }
