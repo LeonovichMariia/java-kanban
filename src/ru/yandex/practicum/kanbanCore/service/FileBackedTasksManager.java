@@ -20,7 +20,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     public void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
-            writer.write(TITLE);
+//            writer.write(TITLE);
             writer.newLine();
             for (Task task : getTasks()) {
                 writer.write(task.toString());

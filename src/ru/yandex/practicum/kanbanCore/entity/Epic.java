@@ -57,4 +57,17 @@ public class Epic extends Task {
         }
         return duration;
     }
+
+    @Override
+    public String toString() {
+        return "Epic{" +
+                "id = " + getId() +
+                ", taskType = " + taskType +
+                ", name = " + getName() +
+                ", status = " + getStatus() +
+                ", description = " + getDescription() +
+                ", startTime = " + getStartTime() +
+                ", duration = " + getDuration() +
+                '}';
+    }
 }
