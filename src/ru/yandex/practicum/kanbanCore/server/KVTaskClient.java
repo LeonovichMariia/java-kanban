@@ -8,22 +8,31 @@ import java.net.http.HttpResponse;
 
 public class KVTaskClient {
     private final String API_TOKEN;
+    protected final String uri;
     private final int PORT = 8078;
 
-    public KVTaskClient() {
+    public KVTaskClient(String uri) {
+        this.uri = uri;
         API_TOKEN = registerKey();
     }
 
     public String registerKey() {
         URI uri = URI.create("http://localhost:" + PORT + "/register");
-        HttpRequest request = HttpRequest.newBuilder().uri(uri).GET().build();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(uri)
+                .GET()
+                .build();
         HttpClient client = HttpClient.newHttpClient();
         HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
         try {
             HttpResponse<String> response = client.send(request, handler);
-            System.out.println("Код ответа: " + response.statusCode());
-            System.out.println("Ваш ключ: " + response.body());
-            return response.body();
+            if (response.statusCode() == 200) {
+                System.out.println("Код ответа: " + response.statusCode());
+                System.out.println("Ваш ключ: " + response.body());
+                return response.body();
+            } else {
+                System.out.println("Что-то пошло не так. Сервер вернул код состояния: " + response.statusCode());
+            }
         } catch (IOException | InterruptedException e) {
             System.out.println("Во время выполнения запроса ресурса по url-адресу: '" + uri + "' возникла ошибка.\n" +
                     "Проверьте, пожалуйста, адрес и повторите попытку.");
@@ -40,7 +49,11 @@ public class KVTaskClient {
                 .build();
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println("Код ответа: " + response.statusCode());
+            if (response.statusCode() == 200) {
+                System.out.println("Код ответа: " + response.statusCode());
+            } else {
+                System.out.println("Что-то пошло не так. Сервер вернул код состояния: " + response.statusCode());
+            }
         } catch (IOException | InterruptedException e) {
             System.out.println("Во время выполнения запроса ресурса по url-адресу: '" + uri + "' возникла ошибка.\n" +
                     "Проверьте, пожалуйста, адрес и повторите попытку.");
@@ -57,8 +70,12 @@ public class KVTaskClient {
                 .build();
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println("Код ответа: " + response.statusCode());
-            return response.body();
+            if (response.statusCode() == 200) {
+                System.out.println("Код ответа: " + response.statusCode());
+                return response.body();
+            } else {
+                System.out.println("Что-то пошло не так. Сервер вернул код состояния: " + response.statusCode());
+            }
         } catch (IOException | InterruptedException e) {
             System.out.println("Во время выполнения запроса ресурса по url-адресу: '" + uri + "' возникла ошибка.\n" +
                     "Проверьте, пожалуйста, адрес и повторите попытку.");

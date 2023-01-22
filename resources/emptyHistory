@@ -1,8 +1,5 @@
 id,type,name,status,description,startTime,duration,epic
-0,TASK,Book,NEW,Read the book,2022-12-31T15:00,20
-1,TASK,Java,NEW,Java learning,2022-12-31T15:40,20
-2,EPIC,Renovation,IN_PROGRESS,Make a renovation at home,2022-12-31T16:00,60
-3,SUBTASK,Bedroom,DONE,Change flooring,2022-12-31T16:00,20,2
-4,SUBTASK,Kitchen,NEW,Change wallpaper,2022-12-31T16:20,20,2
-5,SUBTASK,Bathroom,IN_PROGRESS,Hang a shelf,2022-12-31T16:50,20,2
+Task{id = 0, taskType = TASK, name = Book, status = NEW, description = Read the book, startTime = 2022-12-31T15:00, duration = 20}
+Task{id = 1, taskType = TASK, name = Java, status = NEW, description = Java learning, startTime = 2022-12-31T15:40, duration = 20}
+Task{id = 2, taskType = EPIC, name = Renovation, status = IN_PROGRESS, description = Make a renovation at home, startTime = null, duration = 0}
 

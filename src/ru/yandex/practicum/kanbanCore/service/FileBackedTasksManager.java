@@ -20,7 +20,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     public void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
-//            writer.write(TITLE);
+            writer.write(TITLE);
             writer.newLine();
             for (Task task : getTasks()) {
                 writer.write(task.toString());
@@ -41,30 +41,43 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             writer.newLine();
             writer.write(String.join(",", historySave));
         } catch (IOException e) {
-            throw new ManagerSaveException("Сохранение невозможно" + file.getName());
+            throw new ManagerSaveException("Сохранение невозможно: " + file.getName());
         }
     }
 
     public Task taskFromString(String value) {
         String[] taskSplit = value.split(",");
         Task task = null;
-        int id = Integer.parseInt(taskSplit[0]);
-        Status status = Status.valueOf(taskSplit[3]);
-        String title = taskSplit[2];
-        String description = taskSplit[4];
-        switch (TaskType.valueOf(taskSplit[1])) {
+        String[] taskSplitId = taskSplit[0].split(" = ");
+        int id = Integer.parseInt(taskSplitId[1]);
+        String[] taskSplitStatus = taskSplit[3].split(" = ");
+        Status status = Status.valueOf(taskSplitStatus[1]);
+        String[] taskSplitTitle = taskSplit[2].split(" = ");
+        String title = taskSplitTitle[1];
+        String[] taskSplitDescription = taskSplit[4].split(" = ");
+        String description = taskSplitDescription[1];
+        String[] taskSplitTaskType = taskSplit[1].split(" = ");
+        switch (TaskType.valueOf(taskSplitTaskType[1])) {
             case TASK:
-                LocalDateTime taskStartTime = LocalDateTime.parse(taskSplit[5]);
-                int taskDuration = Integer.parseInt(taskSplit[6]);
+                String[] taskSplitStartTime = taskSplit[5].split(" = ");
+                LocalDateTime taskStartTime = LocalDateTime.parse(taskSplitStartTime[1]);
+                String[] taskSplitDuration = taskSplit[6].split(" = ");
+                String[] taskSplitDurationFin = taskSplitDuration[1].split("}");
+                int taskDuration = Integer.parseInt(taskSplitDurationFin[0]);
                 task = new Task(id, status, description, title, taskStartTime, taskDuration);
                 break;
             case EPIC:
                 task = new Epic(id, status, description, title);
                 break;
             case SUBTASK:
-                int epicId = Integer.parseInt(taskSplit[7]);
-                LocalDateTime startTime = LocalDateTime.parse(taskSplit[5]);
-                int duration = Integer.parseInt(taskSplit[6]);
+                String[] subtaskSplitEpicId = taskSplit[7].split(" = ");
+                String[] subtaskSplitEpicIdFin = subtaskSplitEpicId[1].split("}");
+                int epicId = Integer.parseInt(subtaskSplitEpicIdFin[0]);
+                String[] subtaskSplitStartTime = taskSplit[5].split(" = ");
+                LocalDateTime startTime = LocalDateTime.parse(subtaskSplitStartTime[1]);
+                String[] subtaskSplitDuration = taskSplit[6].split(" = ");
+                String[] subtaskSplitDurationFin = subtaskSplitDuration[1].split("}");
+                int duration = Integer.parseInt(subtaskSplitDurationFin[0]);
                 task = new Subtask(id, status, description, title, epicId, startTime, duration);
                 break;
         }

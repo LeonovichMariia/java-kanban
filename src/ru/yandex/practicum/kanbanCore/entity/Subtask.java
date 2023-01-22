@@ -21,7 +21,7 @@ public class Subtask extends Task {
 
     @Override
     public String toString() {
-        return "Subtask{" +
+        return "Task{" +
                 "id = " + getId() +
                 ", taskType = " + taskType +
                 ", name = " + getName() +

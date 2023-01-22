@@ -3,7 +3,9 @@ package ru.yandex.practicum.kanbanCore.server;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,7 +18,7 @@ import com.sun.net.httpserver.HttpServer;
  */
 
 public class KVServer {
-	public static final int PORT = 8077;
+	public static final int PORT = 8078;
 	private final String apiToken;
 	private final HttpServer server;
 	private final Map<String, String> data = new HashMap<>();
@@ -40,15 +42,22 @@ public class KVServer {
 			if ("GET".equals(h.getRequestMethod())) {
 				String key = h.getRequestURI().getPath().substring("/load/".length());
 				if (key.isEmpty()) {
-					System.out.println("Key для получения пустой. key указывается в пути: /load/{key}");
+					System.out.println("Key для выгрузки пустой. key указывается в пути: /load/{key}");
 					h.sendResponseHeaders(400, 0);
 					return;
 				}
-				Gson gson = new Gson();
-				String reply = gson.toJson(data.get(key));
+				String value = data.get(key);
+				if (value == null) {
+					System.out.println("Value для выгрузки пустой");
+					h.sendResponseHeaders(400, 0);
+					return;
+				}
+				byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+				h.sendResponseHeaders(200, bytes.length);
+				try (OutputStream os = h.getResponseBody()) {
+					os.write(bytes);
+				}
 				System.out.println("Значение для ключа " + key + " успешно получено!");
-				h.sendResponseHeaders(200, 0);
-				System.out.println(reply);
 			} else {
 				System.out.println("/load ждёт GET-запрос, а получил: " + h.getRequestMethod());
 				h.sendResponseHeaders(405, 0);
