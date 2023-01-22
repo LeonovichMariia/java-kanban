@@ -131,34 +131,33 @@ class HttpTaskServerTest {
         assertEquals("", response.body());
     }
 
+    @Test
+    public void deleteTasksTest() throws IOException, InterruptedException {
+        URI uri = URI.create("http://localhost:8085/tasks/task");
+        HttpRequest getEmptyRequest = newBuilder()
+                .uri(uri)
+                .version(HttpClient.Version.HTTP_1_1)
+                .DELETE()
+                .build();
+        HttpResponse<String> emptyResponse = httpClient.send(getEmptyRequest, HttpResponse.BodyHandlers.ofString());
 
-//    @Test
-//    public void deleteTasksTest() throws IOException, InterruptedException {
-//        URI uri = URI.create("http://localhost:8085/tasks/task");
-//        HttpRequest getEmptyRequest = newBuilder()
-//                .uri(uri)
-//                .version(HttpClient.Version.HTTP_1_1)
-//                .DELETE()
-//                .build();
-//        HttpResponse<String> emptyResponse = httpClient.send(getEmptyRequest, HttpResponse.BodyHandlers.ofString());
-//
-//        assertEquals(200, emptyResponse.statusCode());
-//        assertEquals("", emptyResponse.body());
-//    }
-//
-//    @Test
-//    public void deleteTasksByIdTest() throws IOException, InterruptedException {
-//        URI uri = URI.create("http://localhost:8085/tasks/task/?id=1");
-//        HttpRequest getEmptyRequest = newBuilder()
-//                .uri(uri)
-//                .DELETE()
-//                .version(HttpClient.Version.HTTP_1_1)
-//                .build();
-//        HttpResponse<String> emptyResponse = httpClient.send(getEmptyRequest, HttpResponse.BodyHandlers.ofString());
-//
-//        assertEquals(200, emptyResponse.statusCode());
-//        assertEquals("", emptyResponse.body());
-//    }
+        assertEquals(200, emptyResponse.statusCode());
+        assertEquals("", emptyResponse.body());
+    }
+
+    @Test
+    public void deleteTasksByIdTest() throws IOException, InterruptedException {
+        URI uri = URI.create("http://localhost:8085/tasks/task/?id=1");
+        HttpRequest getEmptyRequest = newBuilder()
+                .uri(uri)
+                .DELETE()
+                .version(HttpClient.Version.HTTP_1_1)
+                .build();
+        HttpResponse<String> emptyResponse = httpClient.send(getEmptyRequest, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, emptyResponse.statusCode());
+        assertEquals("", emptyResponse.body());
+    }
 
     @Test
     public void getEpicTest() throws IOException, InterruptedException {
@@ -247,20 +246,20 @@ class HttpTaskServerTest {
         assertEquals(200, emptyResponse.statusCode());
         assertEquals("", emptyResponse.body());
     }
-//
-//    @Test
-//    public void getSubtaskTest() throws IOException, InterruptedException {
-//        URI uri = URI.create("http://localhost:8085/tasks/subtask");
-//        HttpRequest getEmptyRequest = newBuilder()
-//                .uri(uri)
-//                .version(HttpClient.Version.HTTP_1_1)
-//                .GET()
-//                .build();
-//        HttpResponse<String> emptyResponse = httpClient.send(getEmptyRequest, HttpResponse.BodyHandlers.ofString());
-//
-//        assertEquals(200, emptyResponse.statusCode());
-//        assertEquals("", emptyResponse.body());
-//    }
+
+    @Test
+    public void getSubtaskTest() throws IOException, InterruptedException {
+        URI uri = URI.create("http://localhost:8085/tasks/subtask");
+        HttpRequest getEmptyRequest = newBuilder()
+                .uri(uri)
+                .version(HttpClient.Version.HTTP_1_1)
+                .GET()
+                .build();
+        HttpResponse<String> emptyResponse = httpClient.send(getEmptyRequest, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, emptyResponse.statusCode());
+        assertEquals("", emptyResponse.body());
+    }
 
     @Test
     public void getSubtaskByIdTest() throws IOException, InterruptedException {
@@ -311,7 +310,7 @@ class HttpTaskServerTest {
         assertEquals("", response.body());
     }
 
-    /*@Test
+    @Test
     public void deleteSubtaskTest() throws IOException, InterruptedException {
         URI uri = URI.create("http://localhost:8085/tasks/subtask");
         HttpRequest getEmptyRequest = newBuilder()
@@ -336,5 +335,5 @@ class HttpTaskServerTest {
 
         assertEquals(200, emptyResponse.statusCode());
         assertEquals("", emptyResponse.body());
-    }*/
+    }
 }
