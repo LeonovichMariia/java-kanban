@@ -11,6 +11,7 @@ import ru.yandex.practicum.kanbanCore.server.adapters.JsonAdapter;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class HttpTaskManager extends FileBackedTasksManager {
@@ -27,75 +28,24 @@ public class HttpTaskManager extends FileBackedTasksManager {
         kvTaskClient = new KVTaskClient("http://localhost:8080");
     }
 
-    private void saveToServer() {
+    public void save() {
         kvTaskClient.put(TASKS_KEY, gson.toJson(tasks));
         kvTaskClient.put(SUBTASKS_KEY, gson.toJson(subtasks));
         kvTaskClient.put(EPICS_KEY, gson.toJson(epics));
-        kvTaskClient.put(HISTORY_KEY, gson.toJson(getHistory()));
-    }
-
-    @Override
-    public void addTask(Task task) {
-        super.addTask(task);
-        saveToServer();
-    }
-
-    @Override
-    public void addEpic(Epic epic) {
-        super.addEpic(epic);
-        saveToServer();
-    }
-
-    @Override
-    public void addSubtask(Subtask subtask) {
-        super.addSubtask(subtask);
-        saveToServer();
-    }
-
-    @Override
-    public void updateTask(Task updatedTask) {
-        super.updateTask(updatedTask);
-        saveToServer();
-    }
-
-    @Override
-    public void updateEpic(Epic updatedEpic) {
-        super.updateEpic(updatedEpic);
-        saveToServer();
-    }
-
-    @Override
-    public void updateSubtask(Subtask updatedSubtask) {
-        super.updateSubtask(updatedSubtask);
-        saveToServer();
-    }
-
-    @Override
-    public Task findTaskById(int id) {
-        Task task = super.findTaskById(id);
-        saveToServer();
-        return task;
-    }
-
-    @Override
-    public Epic findEpicById(int id) {
-        Epic epic = super.findEpicById(id);
-        saveToServer();
-        return epic;
-    }
-
-    @Override
-    public Subtask findSubtaskById(int id) {
-        Subtask subtask = super.findSubtaskById(id);
-        saveToServer();
-        return subtask;
+        List<Task> tasks = historyManager.getHistory();
+        List<Integer> ids = new ArrayList<>();
+        for (Task task: tasks) {
+            int taskId = task.getId();
+            ids.add(taskId);
+        }
+        kvTaskClient.put(HISTORY_KEY, gson.toJson(ids));
     }
 
     public void load() {
         try {
             tasks = gson.fromJson(kvTaskClient.load(TASKS_KEY), new TypeToken<Map<Integer, Task>>() {}.getType());
             for (Task task : getTasks()) {
-                super.addTask(task);
+                this.addTask(task);
             }
         } catch (NullPointerException e) {
             System.out.println("Список задач пуст.");
@@ -103,7 +53,7 @@ public class HttpTaskManager extends FileBackedTasksManager {
         try {
             epics = gson.fromJson(kvTaskClient.load(EPICS_KEY), new TypeToken<Map<Integer, Epic>>() {}.getType());
             for (Epic epic : getEpics()) {
-                super.addEpic(epic);
+                this.addEpic(epic);
             }
         } catch (NullPointerException e) {
             System.out.println("Список эпиков пуст.");
@@ -111,7 +61,7 @@ public class HttpTaskManager extends FileBackedTasksManager {
         try {
             subtasks = gson.fromJson(kvTaskClient.load(SUBTASKS_KEY), new TypeToken<Map<Integer, Subtask>>() {}.getType());
             for (Subtask subtask : getSubtasks()) {
-                super.addSubtask(subtask);
+                this.addSubtask(subtask);
             }
         } catch (NullPointerException e) {
             System.out.println("Список подзадач пуст.");

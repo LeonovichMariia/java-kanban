@@ -129,10 +129,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                     }
                     System.out.println(ids);
                 }
-//                } else {
-//                    throw new ManagerLoadException(System.lineSeparator() + "История просмотра пуста: загрузка " +
-//                            "данных невозможна!");
-//                }
             }
         } catch (IOException e) {
             throw new ManagerLoadException("Невозможно загрузить файл" + file.getName());

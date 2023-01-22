@@ -1,9 +1,6 @@
 package service;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +15,7 @@ import ru.yandex.practicum.kanbanCore.service.HttpTaskManager;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -159,30 +157,34 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
 
     @Test
     public void shouldHaveHistoryOnKVServer() {
-        Epic epic1 = new Epic(taskManager.generateId(), Status.NEW, "Epic1 description", "Epic1 name");
+        Epic epic1 = new Epic(0, Status.NEW, "Epic1 description", "Epic1 name");
         taskManager.addEpic(epic1);
-        Subtask subtask11 = new Subtask(taskManager.generateId(), Status.NEW, "Subtask11 description",
+        Subtask subtask11 = new Subtask(1, Status.NEW, "Subtask11 description",
                 "Subtask11 name", epic1.getId(), LocalDateTime.of(2022, 12, 31, 15, 20), 20);
-        Subtask subtask12 = new Subtask(taskManager.generateId(), Status.NEW, "Subtask12 description",
+        Subtask subtask12 = new Subtask(2, Status.NEW, "Subtask12 description",
                 "Subtask12 name", epic1.getId(), LocalDateTime.of(2022, 12, 31, 15, 40), 20);
         taskManager.addSubtask(subtask11);
         taskManager.addSubtask(subtask12);
-        Task task = new Task(taskManager.generateId(), Status.NEW, "Task1 description", "Task1 name",
+        Task task = new Task(3, Status.NEW, "Task1 description", "Task1 name",
                 LocalDateTime.of(2022, 12, 31, 15, 0), 20);
         taskManager.addTask(task);
-
-
         taskManager.findTaskById(3);
         taskManager.findSubtaskById(1);
         taskManager.findSubtaskById(2);
         taskManager.findEpicById(0);
+        List<Integer> tasksHistory = new ArrayList<>();
+        tasksHistory.add(task.getId());
+        tasksHistory.add(subtask11.getId());
+        tasksHistory.add(subtask12.getId());
+        tasksHistory.add(epic1.getId());
         String responseFromKVServer = kvTaskClient.load("history");
         JsonArray jsonArray = JsonParser.parseString(responseFromKVServer).getAsJsonArray();
-        Subtask subtask11FromJson = gson.fromJson(jsonArray.get(1), Subtask.class);
-        Task TaskFromJson = gson.fromJson(jsonArray.get(0), Task.class);
-        Epic epicFromJson = gson.fromJson(jsonArray.get(3), Epic.class);
-        assertEquals(subtask11, subtask11FromJson);
-        assertEquals(task, TaskFromJson);
-        assertEquals(epic1, epicFromJson);
+        List<Integer> historyFromKVServer = new ArrayList<>();
+        JsonArray taskIdFromKV = jsonArray.getAsJsonArray();
+        List<JsonElement> tasksIdr = taskIdFromKV.asList();
+        for (JsonElement id: tasksIdr) {
+            historyFromKVServer.add(id.getAsInt());
+        }
+        assertEquals(tasksHistory, historyFromKVServer);
     }
 }

@@ -11,6 +11,9 @@ import ru.yandex.practicum.kanbanCore.entity.Task;
 import ru.yandex.practicum.kanbanCore.server.HttpTaskServer;
 import ru.yandex.practicum.kanbanCore.server.KVServer;
 import ru.yandex.practicum.kanbanCore.server.adapters.JsonAdapter;
+import ru.yandex.practicum.kanbanCore.service.HttpTaskManager;
+import ru.yandex.practicum.kanbanCore.service.InMemoryTaskManager;
+import ru.yandex.practicum.kanbanCore.service.TaskManager;
 
 import java.io.IOException;
 import java.net.URI;
@@ -27,12 +30,25 @@ class HttpTaskServerTest {
     private HttpTaskServer httpTaskServer;
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final Gson gson = JsonAdapter.getDefaultGson();
+    private TaskManager taskManager = new InMemoryTaskManager();
+    private Task task;
+    private Epic epic;
+    private Subtask subtask;
 
     @BeforeEach
     public void beforeEach() throws IOException {
         kvServer = new KVServer();
         kvServer.start();
         httpTaskServer = new HttpTaskServer();
+
+        task = new Task(1, Status.NEW, "Task description", "Task name",
+                LocalDateTime.of(2022, 12, 31, 15, 0), 20);
+        epic = new Epic(5, Status.NEW, "Epic1 description", "Epic1 name");
+        subtask = new Subtask(8, Status.NEW, "Subtask11 description",
+                "Subtask11 name", 5, LocalDateTime.of(2022, 12, 31, 15, 40), 20);
+        taskManager.addTask(task);
+        taskManager.addEpic(epic);
+        taskManager.addSubtask(subtask);
         httpTaskServer.start();
     }
 
@@ -84,15 +100,31 @@ class HttpTaskServerTest {
 
     @Test
     public void getTasksByIdTest() throws IOException, InterruptedException {
+        URI url = URI.create("http://localhost:8085/tasks/task/?id=1");
+        String json = gson.toJson(task);
+        HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(json);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .version(HttpClient.Version.HTTP_1_1)
+                .POST(body)
+                .build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode());
+        assertEquals("", response.body());
+
+        Task testTask = new Task(1, Status.NEW, "Task description", "Task name",
+                LocalDateTime.of(2022, 12, 31, 15, 0), 20);
+        String taskToJson =gson.toJson(testTask);
         URI uri = URI.create("http://localhost:8085/tasks/task/?id=1");
         HttpRequest getEmptyRequest = newBuilder()
                 .uri(uri)
                 .GET()
                 .build();
-        HttpResponse<String> emptyResponse = httpClient.send(getEmptyRequest, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> getResponse = httpClient.send(getEmptyRequest, HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(200, emptyResponse.statusCode());
-        assertEquals("", emptyResponse.body());
+        assertEquals(200, getResponse.statusCode());
+        assertEquals(taskToJson, getResponse.body());
     }
 
     @Test

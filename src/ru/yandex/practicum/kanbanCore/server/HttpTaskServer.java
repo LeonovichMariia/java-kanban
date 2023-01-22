@@ -11,6 +11,7 @@ import ru.yandex.practicum.kanbanCore.entity.Subtask;
 import ru.yandex.practicum.kanbanCore.entity.Task;
 import ru.yandex.practicum.kanbanCore.server.adapters.JsonAdapter;
 import ru.yandex.practicum.kanbanCore.service.HttpTaskManager;
+import ru.yandex.practicum.kanbanCore.service.Managers;
 import ru.yandex.practicum.kanbanCore.service.TaskManager;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class HttpTaskServer {
     private Gson gson = JsonAdapter.getDefaultGson();
 
     public HttpTaskServer() throws IOException {
-        taskManager = new HttpTaskManager();
+        this.taskManager = Managers.getDefault();
         httpServer = HttpServer.create();
         httpServer.bind(new InetSocketAddress(PORT), 0);
         httpServer.createContext("/tasks", this::prioritizedTaskHandler);
@@ -76,6 +77,7 @@ public class HttpTaskServer {
                         return;
                     } else {
                         taskId = Integer.parseInt(query.split("=")[1]);
+                        System.out.println(taskId);
                         httpExchange.sendResponseHeaders(200, 0);
                         Task task = taskManager.findTaskById(taskId);
                         writeResponse(httpExchange, gson.toJson(task));
@@ -91,7 +93,7 @@ public class HttpTaskServer {
                     }
                     JsonObject jsonObject = jsonElement.getAsJsonObject();
                     Task task = gson.fromJson(jsonObject, Task.class);
-                    ArrayList<Task> taskMap = taskManager.getTasks();
+                    List<Task> taskMap = taskManager.getTasks();
                     if (httpExchange.getRequestURI().toString().equals("/tasks/task/")) {
                         if (taskMap.contains(task)) {
                             taskManager.updateTask(task);
