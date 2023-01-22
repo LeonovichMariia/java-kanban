@@ -21,13 +21,11 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import static java.net.http.HttpRequest.newBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HttpTaskServerTest {
-    private KVServer kvServer;
     private HttpTaskServer httpTaskServer;
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final Gson gson = JsonAdapter.getDefaultGson();
@@ -92,10 +90,11 @@ class HttpTaskServerTest {
                 .GET()
                 .build();
         HttpResponse<String> emptyResponse = httpClient.send(getEmptyRequest, HttpResponse.BodyHandlers.ofString());
-        String taskExp = "[\n  {\n    \"name\": \"Task name\",\n    \"description\": \"Task description\",\n    \"id\": 1,\n    \"status\": \"NEW\",\n    \"taskType\": \"TASK\",\n    \"startTime\": \"31.12.2022, 15:00\",\n    \"duration\": 20\n  }\n]";
-        String taskExpToJson = gson.toJson(taskExp);
+        ArrayList<Task> tasks= new ArrayList<>();
+        tasks.add(task);
+        String taskExpToJson = gson.toJson(tasks);
         assertEquals(200, emptyResponse.statusCode());
-        assertEquals(taskExpToJson, gson.toJson(emptyResponse.body()));
+        assertEquals(taskExpToJson, emptyResponse.body());
     }
 
     @Test
