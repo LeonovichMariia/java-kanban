@@ -11,7 +11,6 @@ import ru.yandex.practicum.kanbanCore.entity.Task;
 import ru.yandex.practicum.kanbanCore.server.HttpTaskServer;
 import ru.yandex.practicum.kanbanCore.server.KVServer;
 import ru.yandex.practicum.kanbanCore.server.adapters.JsonAdapter;
-import ru.yandex.practicum.kanbanCore.service.HttpTaskManager;
 import ru.yandex.practicum.kanbanCore.service.InMemoryTaskManager;
 import ru.yandex.practicum.kanbanCore.service.TaskManager;
 
@@ -21,6 +20,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static java.net.http.HttpRequest.newBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,24 +38,19 @@ class HttpTaskServerTest {
 
     @BeforeEach
     public void beforeEach() throws IOException {
-        kvServer = new KVServer();
-        kvServer.start();
-        httpTaskServer = new HttpTaskServer();
-
+        httpTaskServer = new HttpTaskServer(taskManager);
         task = new Task(1, Status.NEW, "Task description", "Task name",
                 LocalDateTime.of(2022, 12, 31, 15, 0), 20);
         epic = new Epic(5, Status.NEW, "Epic1 description", "Epic1 name");
         subtask = new Subtask(8, Status.NEW, "Subtask11 description",
                 "Subtask11 name", 5, LocalDateTime.of(2022, 12, 31, 15, 40), 20);
         taskManager.addTask(task);
-        taskManager.addEpic(epic);
         taskManager.addSubtask(subtask);
         httpTaskServer.start();
     }
 
     @AfterEach
     public void cleanup() {
-        kvServer.stop();
         httpTaskServer.stop();
     }
 
@@ -66,9 +62,12 @@ class HttpTaskServerTest {
                 .GET()
                 .build();
         HttpResponse<String> emptyResponse = httpClient.send(getEmptyRequest, HttpResponse.BodyHandlers.ofString());
-
+        ArrayList<Task> priority= new ArrayList<>();
+        priority.add(task);
+        priority.add(subtask);
+        String actualString = gson.toJson(priority);
         assertEquals(200, emptyResponse.statusCode());
-        assertEquals("[]", emptyResponse.body());
+        assertEquals(actualString, emptyResponse.body());
     }
 
     @Test
@@ -93,9 +92,10 @@ class HttpTaskServerTest {
                 .GET()
                 .build();
         HttpResponse<String> emptyResponse = httpClient.send(getEmptyRequest, HttpResponse.BodyHandlers.ofString());
-
+        String taskExp = "[\n  {\n    \"name\": \"Task name\",\n    \"description\": \"Task description\",\n    \"id\": 1,\n    \"status\": \"NEW\",\n    \"taskType\": \"TASK\",\n    \"startTime\": \"31.12.2022, 15:00\",\n    \"duration\": 20\n  }\n]";
+        String taskExpToJson = gson.toJson(taskExp);
         assertEquals(200, emptyResponse.statusCode());
-        assertEquals("", emptyResponse.body());
+        assertEquals(taskExpToJson, gson.toJson(emptyResponse.body()));
     }
 
     @Test

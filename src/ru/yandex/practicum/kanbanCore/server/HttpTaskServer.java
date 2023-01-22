@@ -10,20 +10,15 @@ import ru.yandex.practicum.kanbanCore.entity.Epic;
 import ru.yandex.practicum.kanbanCore.entity.Subtask;
 import ru.yandex.practicum.kanbanCore.entity.Task;
 import ru.yandex.practicum.kanbanCore.server.adapters.JsonAdapter;
-import ru.yandex.practicum.kanbanCore.service.HttpTaskManager;
-import ru.yandex.practicum.kanbanCore.service.Managers;
 import ru.yandex.practicum.kanbanCore.service.TaskManager;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -34,8 +29,8 @@ public class HttpTaskServer {
     private final HttpServer httpServer;
     private Gson gson = JsonAdapter.getDefaultGson();
 
-    public HttpTaskServer() throws IOException {
-        this.taskManager = Managers.getDefault();
+    public HttpTaskServer(TaskManager taskManager) throws IOException {
+        this.taskManager = taskManager;
         httpServer = HttpServer.create();
         httpServer.bind(new InetSocketAddress(PORT), 0);
         httpServer.createContext("/tasks", this::prioritizedTaskHandler);
@@ -63,7 +58,6 @@ public class HttpTaskServer {
     }
 
     public void tasksHandler(HttpExchange httpExchange) throws IOException {
-        int taskId = 0;
         String method = httpExchange.getRequestMethod();
         String query = httpExchange.getRequestURI().toString();
         try {
@@ -71,17 +65,15 @@ public class HttpTaskServer {
             switch (method) {
                 case "GET":
                     if (!query.contains("id")) {
-                        httpExchange.sendResponseHeaders(200, 0);
                         writeResponse(httpExchange, gson.toJson(taskManager.getTasks()));
                         System.out.println("Выведен список всех задач");
                         return;
                     } else {
-                        taskId = Integer.parseInt(query.split("=")[1]);
-                        System.out.println(taskId);
-                        httpExchange.sendResponseHeaders(200, 0);
-                        Task task = taskManager.findTaskById(taskId);
+                        String taskIdString = query.split("=")[1];
+                        int taskIdFin = Integer.parseInt(taskIdString);
+                        Task task = taskManager.findTaskById(taskIdFin);
                         writeResponse(httpExchange, gson.toJson(task));
-                        System.out.println("Задача по ключу " + taskId);
+                        System.out.println("Задача по ключу " + taskIdFin);
                     }
                     break;
                 case "POST":
@@ -114,7 +106,7 @@ public class HttpTaskServer {
                         System.out.println("Все задачи удалены");
                         return;
                     } else {
-                        taskId = Integer.parseInt(query.split("=")[1]);
+                        int taskId = Integer.parseInt(query.split("=")[1]);
                         httpExchange.sendResponseHeaders(200, 0);
                         task = taskManager.findTaskById(taskId);
                         taskManager.removeSubtaskById(task.getId());
