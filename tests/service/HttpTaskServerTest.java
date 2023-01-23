@@ -62,7 +62,7 @@ class HttpTaskServerTest {
                 .GET()
                 .build();
         HttpResponse<String> emptyResponse = httpClient.send(getEmptyRequest, HttpResponse.BodyHandlers.ofString());
-        ArrayList<Task> priority= new ArrayList<>();
+        ArrayList<Task> priority = new ArrayList<>();
         priority.add(task);
         priority.add(subtask);
         String actualString = gson.toJson(priority);
@@ -92,7 +92,7 @@ class HttpTaskServerTest {
                 .GET()
                 .build();
         HttpResponse<String> emptyResponse = httpClient.send(getEmptyRequest, HttpResponse.BodyHandlers.ofString());
-        ArrayList<Task> tasks= new ArrayList<>();
+        ArrayList<Task> tasks = new ArrayList<>();
         tasks.add(task);
         String taskExpToJson = gson.toJson(tasks);
         assertEquals(200, emptyResponse.statusCode());
@@ -116,7 +116,7 @@ class HttpTaskServerTest {
 
         Task testTask = new Task(1, Status.NEW, "Task description", "Task name",
                 LocalDateTime.of(2022, 12, 31, 15, 0), 20);
-        String taskToJson =gson.toJson(testTask);
+        String taskToJson = gson.toJson(testTask);
         URI uri = URI.create("http://localhost:8085/tasks/task/?id=1");
         HttpRequest getEmptyRequest = newBuilder()
                 .uri(uri)
@@ -126,6 +126,18 @@ class HttpTaskServerTest {
 
         assertEquals(200, getResponse.statusCode());
         assertEquals(taskToJson, getResponse.body());
+
+        URI uriHistory = URI.create("http://localhost:8085/tasks/history");
+        HttpRequest getHistoryRequest = newBuilder()
+                .uri(uriHistory)
+                .GET()
+                .build();
+        HttpResponse<String> historyResponse = httpClient.send(getHistoryRequest, HttpResponse.BodyHandlers.ofString());
+        ArrayList<Integer> historyList = new ArrayList<>();
+        historyList.add(task.getId());
+        String historyListJ = gson.toJson(historyList);
+        assertEquals(200, historyResponse.statusCode());
+        assertEquals(historyListJ, historyResponse.body());
 
         URI uriDel = URI.create("http://localhost:8085/tasks/task/?id=1");
         HttpRequest deleteRequest = newBuilder()
@@ -169,6 +181,18 @@ class HttpTaskServerTest {
         assertEquals(200, getResponse.statusCode());
         assertEquals(subtaskToJson, getResponse.body());
 
+        URI uriHistory = URI.create("http://localhost:8085/tasks/history");
+        HttpRequest getHistoryRequest = newBuilder()
+                .uri(uriHistory)
+                .GET()
+                .build();
+        HttpResponse<String> historyResponse = httpClient.send(getHistoryRequest, HttpResponse.BodyHandlers.ofString());
+        ArrayList<Integer> historyList = new ArrayList<>();
+        historyList.add(subtask.getId());
+        String historyListJ = gson.toJson(historyList);
+        assertEquals(200, historyResponse.statusCode());
+        assertEquals(historyListJ, historyResponse.body());
+
         URI uriDel = URI.create("http://localhost:8085/tasks/subtask/?id=2");
         HttpRequest deleteRequest = newBuilder()
                 .uri(uriDel)
@@ -210,6 +234,18 @@ class HttpTaskServerTest {
 
         assertEquals(200, getResponse.statusCode());
         assertEquals(epicToJson, getResponse.body());
+
+        URI uriHistory = URI.create("http://localhost:8085/tasks/history");
+        HttpRequest getHistoryRequest = newBuilder()
+                .uri(uriHistory)
+                .GET()
+                .build();
+        HttpResponse<String> historyResponse = httpClient.send(getHistoryRequest, HttpResponse.BodyHandlers.ofString());
+        ArrayList<Integer> historyList = new ArrayList<>();
+        historyList.add(epic.getId());
+        String historyListJ = gson.toJson(historyList);
+        assertEquals(200, historyResponse.statusCode());
+        assertEquals(historyListJ, historyResponse.body());
 
         URI uriDel = URI.create("http://localhost:8085/tasks/epic/?id=5");
         HttpRequest deleteRequest = newBuilder()

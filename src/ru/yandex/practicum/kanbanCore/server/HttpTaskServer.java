@@ -262,7 +262,13 @@ public class HttpTaskServer {
                 if (taskManager.getHistory().isEmpty()) {
                     System.out.println("История пуста!");
                 }
-                writeResponse(httpExchange, gson.toJson(taskManager.getHistory()));
+                List<Task> tasks = taskManager.getHistory();
+                List<Integer> ids = new ArrayList<>();
+                for (Task task: tasks) {
+                    int taskId = task.getId();
+                    ids.add(taskId);
+                }
+                writeResponse(httpExchange, gson.toJson(ids));
             } else {
                 System.out.println("/tasks/ ждет запрос GET. Ваш запрос: " + httpExchange.getRequestMethod());
                 httpExchange.sendResponseHeaders(405, 0);
