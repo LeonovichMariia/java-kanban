@@ -21,6 +21,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 import static java.net.http.HttpRequest.newBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,9 +41,10 @@ class HttpTaskServerTest {
         task = new Task(1, Status.NEW, "Task description", "Task name",
                 LocalDateTime.of(2022, 12, 31, 15, 0), 20);
         epic = new Epic(5, Status.NEW, "Epic1 description", "Epic1 name");
-        subtask = new Subtask(8, Status.NEW, "Subtask11 description",
+        subtask = new Subtask(2, Status.NEW, "Subtask11 description",
                 "Subtask11 name", 5, LocalDateTime.of(2022, 12, 31, 15, 40), 20);
         taskManager.addTask(task);
+        taskManager.addEpic(epic);
         taskManager.addSubtask(subtask);
         httpTaskServer.start();
     }
@@ -124,6 +126,101 @@ class HttpTaskServerTest {
 
         assertEquals(200, getResponse.statusCode());
         assertEquals(taskToJson, getResponse.body());
+
+        URI uriDel = URI.create("http://localhost:8085/tasks/task/?id=1");
+        HttpRequest deleteRequest = newBuilder()
+                .uri(uriDel)
+                .DELETE()
+                .version(HttpClient.Version.HTTP_1_1)
+                .build();
+        HttpResponse<String> emptyResponse = httpClient.send(deleteRequest, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, emptyResponse.statusCode());
+        assertEquals("", emptyResponse.body());
+    }
+
+    @Test
+    public void getSubtasksByIdTest() throws IOException, InterruptedException {
+        URI url = URI.create("http://localhost:8085/tasks/subtask/?id=2");
+        String json = gson.toJson(subtask);
+        HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(json);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .version(HttpClient.Version.HTTP_1_1)
+                .POST(body)
+                .build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode());
+        assertEquals("", response.body());
+
+        Epic epic1 = new Epic(5, Status.NEW, "Epic1 description", "Epic1 name");
+        taskManager.addEpic(epic1);
+        Subtask testSubtask11 = new Subtask(2, Status.NEW, "Subtask11 description",
+                "Subtask11 name", 5, LocalDateTime.of(2022, 12, 31, 15, 40), 20);
+        String subtaskToJson = gson.toJson(testSubtask11);
+        URI uri = URI.create("http://localhost:8085/tasks/subtask/?id=2");
+        HttpRequest getEmptyRequest = newBuilder()
+                .uri(uri)
+                .GET()
+                .build();
+        HttpResponse<String> getResponse = httpClient.send(getEmptyRequest, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, getResponse.statusCode());
+        assertEquals(subtaskToJson, getResponse.body());
+
+        URI uriDel = URI.create("http://localhost:8085/tasks/subtask/?id=2");
+        HttpRequest deleteRequest = newBuilder()
+                .uri(uriDel)
+                .DELETE()
+                .version(HttpClient.Version.HTTP_1_1)
+                .build();
+        HttpResponse<String> emptyResponse = httpClient.send(deleteRequest, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, emptyResponse.statusCode());
+        assertEquals("", emptyResponse.body());
+    }
+
+    @Test
+    public void getEpicsByIdTest() throws IOException, InterruptedException {
+        URI url = URI.create("http://localhost:8085/tasks/epic/?id=5");
+        String json = gson.toJson(epic);
+        HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(json);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .version(HttpClient.Version.HTTP_1_1)
+                .POST(body)
+                .build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode());
+        assertEquals("", response.body());
+
+        Epic testEpic1 = new Epic(5, Status.NEW, "Epic1 description", "Epic1 name");
+        Subtask subtask11 = new Subtask(2, Status.NEW, "Subtask11 description",
+                "Subtask11 name", testEpic1.getId(), LocalDateTime.of(2022, 12, 31, 15, 40), 20);
+        testEpic1.addSubtask(subtask11);
+        String epicToJson = gson.toJson(testEpic1);
+        URI uri = URI.create("http://localhost:8085/tasks/epic/?id=5");
+        HttpRequest getEmptyRequest = newBuilder()
+                .uri(uri)
+                .GET()
+                .build();
+        HttpResponse<String> getResponse = httpClient.send(getEmptyRequest, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, getResponse.statusCode());
+        assertEquals(epicToJson, getResponse.body());
+
+        URI uriDel = URI.create("http://localhost:8085/tasks/epic/?id=5");
+        HttpRequest deleteRequest = newBuilder()
+                .uri(uriDel)
+                .DELETE()
+                .version(HttpClient.Version.HTTP_1_1)
+                .build();
+        HttpResponse<String> emptyResponse = httpClient.send(deleteRequest, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, emptyResponse.statusCode());
+        assertEquals("", emptyResponse.body());
     }
 
     @Test
@@ -192,6 +289,13 @@ class HttpTaskServerTest {
 
     @Test
     public void getEpicTest() throws IOException, InterruptedException {
+        Epic testEpic1 = new Epic(5, Status.NEW, "Epic1 description", "Epic1 name");
+        Subtask subtask11 = new Subtask(2, Status.NEW, "Subtask11 description",
+                "Subtask11 name", testEpic1.getId(), LocalDateTime.of(2022, 12, 31, 15, 40), 20);
+        testEpic1.addSubtask(subtask11);
+        List<Epic> epics = new ArrayList<>();
+        epics.add(testEpic1);
+        String epicToJson = gson.toJson(epics);
         URI uri = URI.create("http://localhost:8085/tasks/epic");
         HttpRequest getEmptyRequest = newBuilder()
                 .uri(uri)
@@ -200,12 +304,17 @@ class HttpTaskServerTest {
         HttpResponse<String> emptyResponse = httpClient.send(getEmptyRequest, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, emptyResponse.statusCode());
-        assertEquals("", emptyResponse.body());
+        assertEquals(epicToJson, emptyResponse.body());
     }
 
     @Test
     public void getEpicByIdTest() throws IOException, InterruptedException {
-        URI uri = URI.create("http://localhost:8085/tasks/epic/?id=1");
+        Epic testEpic1 = new Epic(5, Status.NEW, "Epic1 description", "Epic1 name");
+        Subtask subtask11 = new Subtask(2, Status.NEW, "Subtask11 description",
+                "Subtask11 name", testEpic1.getId(), LocalDateTime.of(2022, 12, 31, 15, 40), 20);
+        testEpic1.addSubtask(subtask11);
+        String epicToJson = gson.toJson(testEpic1);
+        URI uri = URI.create("http://localhost:8085/tasks/epic/?id=5");
         HttpRequest getEmptyRequest = newBuilder()
                 .uri(uri)
                 .GET()
@@ -213,7 +322,7 @@ class HttpTaskServerTest {
         HttpResponse<String> emptyResponse = httpClient.send(getEmptyRequest, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, emptyResponse.statusCode());
-        assertEquals("", emptyResponse.body());
+        assertEquals(epicToJson, emptyResponse.body());
     }
 
     @Test
@@ -281,6 +390,7 @@ class HttpTaskServerTest {
     @Test
     public void getSubtaskTest() throws IOException, InterruptedException {
         URI uri = URI.create("http://localhost:8085/tasks/subtask");
+        taskManager.clearEpics();
         HttpRequest getEmptyRequest = newBuilder()
                 .uri(uri)
                 .version(HttpClient.Version.HTTP_1_1)
@@ -289,12 +399,15 @@ class HttpTaskServerTest {
         HttpResponse<String> emptyResponse = httpClient.send(getEmptyRequest, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, emptyResponse.statusCode());
-        assertEquals("", emptyResponse.body());
+        assertEquals("[]", emptyResponse.body());
     }
 
     @Test
     public void getSubtaskByIdTest() throws IOException, InterruptedException {
-        URI uri = URI.create("http://localhost:8085/tasks/subtask/?id=1");
+        Subtask testSubtask11 = new Subtask(2, Status.NEW, "Subtask11 description",
+                "Subtask11 name", 5, LocalDateTime.of(2022, 12, 31, 15, 40), 20);
+        String subtaskToJson = gson.toJson(testSubtask11);
+        URI uri = URI.create("http://localhost:8085/tasks/subtask/?id=2");
         HttpRequest getEmptyRequest = newBuilder()
                 .uri(uri)
                 .GET()
@@ -302,7 +415,7 @@ class HttpTaskServerTest {
         HttpResponse<String> emptyResponse = httpClient.send(getEmptyRequest, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, emptyResponse.statusCode());
-        assertEquals("", emptyResponse.body());
+        assertEquals(subtaskToJson, emptyResponse.body());
     }
 
     @Test

@@ -94,7 +94,6 @@ public class HttpTaskServer {
                         }
                     }
                     httpExchange.sendResponseHeaders(200, 0);
-                    httpExchange.close();
                     break;
                 case "DELETE":
                     if (!query.contains("id")) {
@@ -132,14 +131,12 @@ public class HttpTaskServer {
             switch (method) {
                 case "GET":
                     if (!query.contains("id")) {
-                        httpExchange.sendResponseHeaders(200, 0);
                         List<Subtask> subtasks = taskManager.getSubtasks();
                         writeResponse(httpExchange, gson.toJson(subtasks));
                         System.out.println("Выведен список всех подзадач");
                         return;
                     } else {
                         taskId = Integer.parseInt(query.split("=")[1]);
-                        httpExchange.sendResponseHeaders(200, 0);
                         Subtask subtask = taskManager.findSubtaskById(taskId);
                         writeResponse(httpExchange, gson.toJson(subtask));
                         System.out.println("Подадача по ключу " + taskId);
@@ -154,16 +151,15 @@ public class HttpTaskServer {
                     }
                     JsonObject jsonObject = jsonElement.getAsJsonObject();
                     Subtask subtask = gson.fromJson(jsonObject, Subtask.class);
-                    ArrayList<Subtask> subtaskMap = taskManager.getSubtasks();
-                    if (httpExchange.getRequestURI().toString().equals("/tasks/subtask/")) {
-                        if (subtaskMap.contains(subtask)) {
+                    List<Subtask> subtasksMap = taskManager.getSubtasks();
+                    if (httpExchange.getRequestURI().toString().equals("/tasks/task/")) {
+                        if (subtasksMap.contains(subtask)) {
                             taskManager.updateSubtask(subtask);
                         } else {
                             taskManager.addSubtask(subtask);
                         }
                     }
                     httpExchange.sendResponseHeaders(200, 0);
-                    httpExchange.close();
                     break;
                 case "DELETE":
                     if (!query.contains("id")) {
@@ -201,14 +197,12 @@ public class HttpTaskServer {
             switch (method) {
                 case "GET":
                     if (!query.contains("id")) {
-                        httpExchange.sendResponseHeaders(200, 0);
                         List<Epic> epics = taskManager.getEpics();
                         writeResponse(httpExchange, gson.toJson(epics));
                         System.out.println("Выведен список всех эпиков");
                         return;
                     } else {
                         taskId = Integer.parseInt(query.split("=")[1]);
-                        httpExchange.sendResponseHeaders(200, 0);
                         Epic epic = taskManager.findEpicById(taskId);
                         writeResponse(httpExchange, gson.toJson(epic));
                         System.out.println("Эпик по ключу " + taskId);
@@ -248,7 +242,7 @@ public class HttpTaskServer {
                         httpExchange.sendResponseHeaders(200, 0);
                         epic = taskManager.findEpicById(taskId);
                         taskManager.removeEpicById(epic.getId());
-                        writeResponse(httpExchange, gson.toJson(epic));
+                        writeResponse(httpExchange, "Эпик по ключу " + taskId + " удален");
                         System.out.println("Эпик по ключу " + taskId + " удален");
                     }
                     break;
